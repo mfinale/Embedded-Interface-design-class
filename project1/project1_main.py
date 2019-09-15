@@ -18,7 +18,8 @@ mycursor = mydb.cursor()
 
 #start with clean table called "sensordata"
 mycursor.execute("DROP TABLE sensordata")
-mycursor.execute("CREATE TABLE sensordata (timestamp varchar(30), temp float(4,2), humid float(4,2))")
+mycursor.execute("CREATE TABLE sensordata ( timestamp VARCHAR(30),temp float(4,2), humid float(4,2))")
+
 
 #get timestamp, temperature in celsius, and humidity
 def get_sensor_data():
@@ -40,26 +41,34 @@ def store_sensor_data():
     mydb.commit()
 
 
+#get last desired readings of humid data
 def retrieve_humid_data(rows):
-    sql = "SELECT timestamp, humid FROM sensordata LIMIT " + str(rows)
-    mycursor.execute(sql)
+    mycursor.execute("SELECT * FROM \
+    ( SELECT timestamp, humid FROM sensordata ORDER BY timestamp DESC LIMIT "+str(rows)+ " )\
+    sub ORDER by timestamp ASC")
     return mycursor.fetchall()
 
-def retrieve_humid_data(rows):
-    sql = "SELECT timestamp, humid FROM sensordata LIMIT " + str(rows)
-    mycursor.execute(sql)
+#get last desired readings of temp data
+def retrieve_temp_data(rows):
+    mycursor.execute("SELECT * FROM \
+    ( SELECT timestamp, temp FROM sensordata ORDER BY timestamp DESC LIMIT "+str(rows)+ " )\
+    sub ORDER by timestamp ASC")
     return mycursor.fetchall()
 
-for x in range (0,30):
+
+#main for debugging
+
+for x in range (0,10):
     store_sensor_data()
     
 print ("            ")
-myresult = retrieve_humid_data(10)    
+myresult = retrieve_humid_data(4)    
 for x in myresult:
     print(x)
-
-#mycursor.execute("SELECT * FROM sensordata")
-#myresult = mycursor.fetchall()
+    
+myresult = retrieve_temp_data(4)    
+for x in myresult:
+    print(x)
 
 
 
