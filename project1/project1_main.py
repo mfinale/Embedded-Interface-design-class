@@ -1,8 +1,9 @@
 # installation steps for readme
 # clone from git
-# install mySQL drive for python sudo pip3 install mysql-connector
+# install mySQL drive for python3 sudo pip3 install mysql-connector
 # install mySQL and create a local database with user and password info https://pimylifeup.com/raspberry-pi-mysql/
 # install DHT library for Raspberry Pi sudo pip3 install Adafruit_DHT
+# install qt5?? see notes from powerpoint
 import mysql.connector
 import Adafruit_DHT
 import datetime
@@ -18,21 +19,27 @@ mycursor = mydb.cursor()
 
 #start with clean table called "sensordata"
 mycursor.execute("DROP TABLE sensordata")
-mycursor.execute("CREATE TABLE sensordata ( timestamp VARCHAR(30),temp float(4,2), humid float(4,2))")
+mycursor.execute("CREATE TABLE sensordata ( timestamp VARCHAR(30),temp float(10,2), humid float(10,2))")
 
 
 #get timestamp, temperature in celsius, and humidity
 def get_sensor_data():
-    humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
-    if humidity is not None and temperature is not None:
-        temperature = "{0:0.2f}".format(temperature)
-        humidity = "{0:0.2f}".format(humidity)
+    try:
+        humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
+        if humidity is not None and temperature is not None:
+            temperature = "{0:0.2f}".format(temperature)
+            humidity = "{0:0.2f}".format(humidity)
+            time = str(datetime.datetime.now())
+            print(time + " Temperature = " + temperature+"*C " + "Humidity= "+ humidity+"%")
+            return (time, temperature, humidity)
+        else:
+            print("Failed to retrieve sensor data. Check DHT22 sensor connection.")
+            time = str(datetime.datetime.now())
+            return (time, "0.0", "0.0")
+    except:
+        print("Sensor Error")
         time = str(datetime.datetime.now())
-        print(time + " Temperature = " + temperature+"*C " + "Humidity= "+ humidity+"%")
-        return (time, temperature, humidity)
-    else:
-        print("Failed to retrieve data from DHT22 sensor")
-
+        return (time, "0.0", "0.0")
 
 def store_sensor_data():
     sql = "INSERT INTO sensordata (timestamp, temp, humid) VALUES (%s, %s, %s)"
@@ -58,15 +65,15 @@ def retrieve_temp_data(rows):
 
 #main for debugging
 
-for x in range (0,10):
+for x in range (0,500):
     store_sensor_data()
     
 print ("            ")
-myresult = retrieve_humid_data(4)    
+myresult = retrieve_humid_data(10)    
 for x in myresult:
     print(x)
     
-myresult = retrieve_temp_data(4)    
+myresult = retrieve_temp_data(10)    
 for x in myresult:
     print(x)
 
