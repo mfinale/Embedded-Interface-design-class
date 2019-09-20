@@ -30,6 +30,8 @@ mycursor.execute("CREATE TABLE sensordata ( timestamp VARCHAR(30),temp float(10,
 class Ui_Dialog(object):
     #variables used within class:
     read_count = 0
+    max_humid = 300
+    max_temp = 300
     
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dh22 Sensor Interface")
@@ -85,6 +87,9 @@ class Ui_Dialog(object):
         
         #read data on button press
         self.read_data_btn.clicked.connect(self.get_instant_sensor_data)
+        
+        #set max limits of temper and humidty on button press
+        self.setlimits_btn.clicked.connect(self.set_limits)
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
@@ -138,6 +143,8 @@ class Ui_Dialog(object):
                 temperature = "{0:0.2f}".format(temperature)
                 humidity = "{0:0.2f}".format(humidity)
                 time = str(datetime.datetime.now())
+
+                
                 self.status_out.setText(time + "       Temperature : " + temperature+"*C " + "  Humidity : "+ humidity+"%")
                 return (time, temperature, humidity)
             else:
@@ -148,6 +155,24 @@ class Ui_Dialog(object):
             self.status_out.setText("Sensor Error")
             time = str(datetime.datetime.now())
             return (time, "0.0", "0.0")
+    
+    def set_limits(self):
+        self.max_humid = self.hum_limit_in.text()
+        self.max_temp = self.temp_limit_in.text()
+        print ("max humidity and temp are:" + self.max_humid + " " + self.max_temp)
+        
+    # check readings and write an alarm message if readings exceed limits   
+    #def alarm(self, chk_temp, chk_humid)
+     #   if chk_temp > :
+            #set make the label say "Warning: High Temp"
+      #  elif data == humid:
+            #make label say Warnining High humid
+       # else:
+            # make label blank
+        
+            
+    
+        
 
 
 
