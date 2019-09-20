@@ -58,8 +58,11 @@ class Ui_Dialog(object):
         self.plot_hum_btn.setGeometry(QtCore.QRect(50, 190, 211, 31))
         self.plot_hum_btn.setObjectName("plot_hum_btn")
         self.alarm_message = QtWidgets.QLabel(Dialog)
-        self.alarm_message.setGeometry(QtCore.QRect(760, 90, 171, 81))
+        self.alarm_message.setGeometry(QtCore.QRect(720, 90, 190, 90))
         self.alarm_message.setObjectName("alarm_message")
+        self.alarm_message.setWordWrap(True)  
+        font = QtGui.QFont("Arial", 15, QtGui.QFont.Bold)
+        self.alarm_message.setFont(font)
         self.setlimits_btn = QtWidgets.QPushButton(Dialog)
         self.setlimits_btn.setGeometry(QtCore.QRect(510, 210, 125, 36))
         self.setlimits_btn.setObjectName("setlimits_btn")
@@ -113,6 +116,7 @@ class Ui_Dialog(object):
         try:
             humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
             if humidity is not None and temperature is not None:
+                self.alarm(temperature, humidity)
                 temperature = "{0:0.2f}".format(temperature)
                 humidity = "{0:0.2f}".format(humidity)
                 time = str(datetime.datetime.now())
@@ -140,11 +144,10 @@ class Ui_Dialog(object):
         try:
             humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
             if humidity is not None and temperature is not None:
+                self.alarm(temperature, humidity)
                 temperature = "{0:0.2f}".format(temperature)
                 humidity = "{0:0.2f}".format(humidity)
                 time = str(datetime.datetime.now())
-
-                
                 self.status_out.setText(time + "       Temperature : " + temperature+"*C " + "  Humidity : "+ humidity+"%")
                 return (time, temperature, humidity)
             else:
@@ -157,18 +160,20 @@ class Ui_Dialog(object):
             return (time, "0.0", "0.0")
     
     def set_limits(self):
-        self.max_humid = self.hum_limit_in.text()
-        self.max_temp = self.temp_limit_in.text()
-        print ("max humidity and temp are:" + self.max_humid + " " + self.max_temp)
+        self.max_humid = float(self.hum_limit_in.text())
+        self.max_temp = float(self.temp_limit_in.text())
+        print ("max humidity and temp are:" + str(self.max_humid) + " " + str(self.max_temp))
         
     # check readings and write an alarm message if readings exceed limits   
-    #def alarm(self, chk_temp, chk_humid)
-     #   if chk_temp > :
-            #set make the label say "Warning: High Temp"
-      #  elif data == humid:
-            #make label say Warnining High humid
-       # else:
-            # make label blank
+    def alarm(self, chk_temp, chk_humid):
+        if chk_temp > self.max_temp:
+            self.alarm_message.setText("<font color='red'>Warning: High Temp</font>")
+        if chk_humid > self.max_humid :
+            self.alarm_message.setText("<font color='red'>Warning: High Humidity</font>")
+        if chk_humid > self.max_humid and chk_temp > self.max_temp :
+            self.alarm_message.setText("<font color='red'>Warning: High Temp and Humidty</font>")
+        elif chk_humid < self.max_humid and chk_temp < self.max_temp :
+            self.alarm_message.setText("<font color='green'>Temp and Humidty OK</font>")
         
             
     
