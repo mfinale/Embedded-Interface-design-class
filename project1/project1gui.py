@@ -6,6 +6,8 @@
 import mysql.connector
 import Adafruit_DHT
 import datetime
+from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 #DHT sensor intialization
 DHT_SENSOR = Adafruit_DHT.DHT22
@@ -21,11 +23,14 @@ mycursor.execute("DROP TABLE sensordata")
 mycursor.execute("CREATE TABLE sensordata ( timestamp VARCHAR(30),temp float(10,2), humid float(10,2))")
 
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 
 
 class Ui_Dialog(object):
+    #variables used within class:
+    read_count = 0
+    
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dh22 Sensor Interface")
         Dialog.resize(941, 490)
@@ -72,20 +77,18 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
         
-        #setup timer for periodic readings
-        self.read_timer = QtCore.QTimer(self)
+        #setup timer for periodic readings to update status line and store data every 15 seconds
+        self.read_timer = QtCore.QTimer()
         self.read_timer.setSingleShot(False)
-        self.read_timer.timeout.connect(self.get_instant_sensor_data)
-        self.read_timer.start(1000)
+        self.read_timer.timeout.connect(self.store_sensor_data)
+        self.read_timer.start(15000)
         
-        
-        
-        
+        #read data on button press
         self.read_data_btn.clicked.connect(self.get_instant_sensor_data)
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Dh22 Sensor Interface"))
         self.read_data_out.setText(_translate("Dialog", "Sensor data"))
         self.status_out.setText(_translate("Dialog", "Sensor Status"))
         self.read_data_btn.setText(_translate("Dialog", "Read Temperature and Humidity"))
@@ -100,7 +103,7 @@ class Ui_Dialog(object):
 
 
 
-    #get timestamp, temperature in celsius, and humidity for readings on demand
+    #get timestamp, temperature in celsius, and humidity for readings on demand and then print to label
     def get_instant_sensor_data(self):
         try:
             humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
@@ -116,8 +119,19 @@ class Ui_Dialog(object):
             
 
 
+    # called by timer. Acquires sensor data and stores in a mysql db for 30 reads then does nothing
+    def store_sensor_data(self):      
+        if self.read_count == 30:
+            print("max limit reached")
+            return
+        else:
+            sql = "INSERT INTO sensordata (timestamp, temp, humid) VALUES (%s, %s, %s)"
+            val = self.get_sensor_data()
+            mycursor.execute(sql, val)
+            mydb.commit()
+        self.read_count = self.read_count +1
 
-    #get timestamp, temperature in celsius, and humidity. 
+    #This is called by timer periodically. Get sensor data and status and print to label
     def get_sensor_data(self):
         try:
             humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
@@ -125,16 +139,17 @@ class Ui_Dialog(object):
                 temperature = "{0:0.2f}".format(temperature)
                 humidity = "{0:0.2f}".format(humidity)
                 time = str(datetime.datetime.now())
-                print(time + " Temperature = " + temperature+"*C " + "Humidity= "+ humidity+"%")
+                self.status_out.setText(time + "       Temperature : " + temperature+"*C " + "  Humidity : "+ humidity+"%")
                 return (time, temperature, humidity)
             else:
-                print("Failed to retrieve sensor data. Check DHT22 sensor connection.")
+                self.status_out.setText("Failed to retrieve sensor data. Check DHT22 sensor connection.")
                 time = str(datetime.datetime.now())
                 return (time, "0.0", "0.0")
         except:
-            print("Sensor Error")
+            self.status_out.setText("Sensor Error")
             time = str(datetime.datetime.now())
             return (time, "0.0", "0.0")
+
 
 
 if __name__ == "__main__":
