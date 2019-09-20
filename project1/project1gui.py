@@ -6,7 +6,10 @@
 import mysql.connector
 import Adafruit_DHT
 import datetime
+import time
+import matplotlib.pyplot as plt
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PIL import Image
 
 
 #DHT sensor intialization
@@ -21,10 +24,6 @@ mycursor = mydb.cursor()
 #start with clean table called "sensordata"
 mycursor.execute("DROP TABLE sensordata")
 mycursor.execute("CREATE TABLE sensordata ( timestamp VARCHAR(30),temp float(10,2), humid float(10,2))")
-
-
-
-
 
 
 class Ui_Dialog(object):
@@ -93,6 +92,8 @@ class Ui_Dialog(object):
         
         #set max limits of temper and humidty on button press
         self.setlimits_btn.clicked.connect(self.set_limits)
+        
+        self.plot_temp_btn.clicked.connect(self.plot_temp)
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
@@ -132,9 +133,9 @@ class Ui_Dialog(object):
     def store_sensor_data(self):      
         if self.read_count == 30:
             return
-        else:
-            sql = "INSERT INTO sensordata (timestamp, temp, humid) VALUES (%s, %s, %s)"
+        else: 
             val = self.get_sensor_data()
+            sql = "INSERT INTO sensordata (timestamp, temp, humid) VALUES (%s, %s, %s)"
             mycursor.execute(sql, val)
             mydb.commit()
         self.read_count = self.read_count +1
@@ -160,9 +161,12 @@ class Ui_Dialog(object):
             return (time, "0.0", "0.0")
     
     def set_limits(self):
-        self.max_humid = float(self.hum_limit_in.text())
-        self.max_temp = float(self.temp_limit_in.text())
-        print ("max humidity and temp are:" + str(self.max_humid) + " " + str(self.max_temp))
+        try:
+            self.max_humid = float(self.hum_limit_in.text())
+            self.max_temp = float(self.temp_limit_in.text())
+            print ("max humidity and temp are:" + str(self.max_humid) + " " + str(self.max_temp))
+        except:
+            return
         
     # check readings and write an alarm message if readings exceed limits   
     def alarm(self, chk_temp, chk_humid):
@@ -174,10 +178,41 @@ class Ui_Dialog(object):
             self.alarm_message.setText("<font color='red'>Warning: High Temp and Humidty</font>")
         elif chk_humid < self.max_humid and chk_temp < self.max_temp :
             self.alarm_message.setText("<font color='green'>Temp and Humidty OK</font>")
-        
-            
+                   
     
+        #get last desired readings of humid data
+    def retrieve_humid_data(self, rows):
+        mycursor.execute("SELECT * FROM \
+        ( SELECT timestamp, humid FROM sensordata ORDER BY timestamp DESC LIMIT "+str(rows)+ " )\
+        sub ORDER by timestamp ASC")
+        return mycursor.fetchall()
+
+    #get last desired readings of temp data
+    def retrieve_temp_data(self, rows):
+        mycursor.execute("SELECT * FROM \
+        ( SELECT timestamp, temp FROM sensordata ORDER BY timestamp DESC LIMIT "+str(rows)+ " )\
+        sub ORDER by timestamp ASC")
+        return mycursor.fetchall()
+
         
+    def plot_temp(self):
+        data = self.retrieve_temp_data(10)
+        time_x = []
+        temp_y =[]
+        for i in range(0,len(data)):
+            time_x.append(data[i][0])
+            temp_y.append(data[i][1])
+        try:
+            plt.plot(time_x,temp_y)
+        except:
+            return
+            #nodata has been collected
+        plt.xlabel('Time', fontsize=18)
+        plt.ylabel('Temperature °C', fontsize=16)
+        plt.xticks(rotation=45)
+        plt.show()
+        
+    
 
 
 
