@@ -122,7 +122,6 @@ class Ui_Dialog(object):
     # called by timer. Acquires sensor data and stores in a mysql db for 30 reads then does nothing
     def store_sensor_data(self):      
         if self.read_count == 30:
-            print("max limit reached")
             return
         else:
             sql = "INSERT INTO sensordata (timestamp, temp, humid) VALUES (%s, %s, %s)"
