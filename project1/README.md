@@ -20,7 +20,7 @@
 -user="eiduser"
 -passwd="Shrek2"  
 -database=sensordb
-Reference https://pimylifeup.com/raspberry-pi-mysql/ if more detailed instructions are needed.
+- Reference https://pimylifeup.com/raspberry-pi-mysql/ if more detailed instructions are needed.
 - navigate to "project1" folder
 - run project 1 gui.py `type the command here`
 
@@ -30,10 +30,10 @@ Application developed by Michael Finale.
 ## Project Additions
 
 ## References
-[1]https://www.geeksforgeeks.org/python-introduction-matplotlib/
-[2]https://doc.qt.io/qtforpython/PySide2/QtCore/QTimer.html
-[3]https://pythonspot.com/pyqt5-image/
-[4]https://pynative.com/python-mysql-insert-data-into-database-table/
-[5]https://pimylifeup.com/raspberry-pi-mysql/
-[6]https://www.w3schools.com/python/python_mysql_create_db.asp
-[7]https://pimylifeup.com/raspberry-pi-humidity-sensor-dht22/
+- [1]https://www.geeksforgeeks.org/python-introduction-matplotlib/
+- [2]https://doc.qt.io/qtforpython/PySide2/QtCore/QTimer.html
+- [3]https://pythonspot.com/pyqt5-image/
+- [4]https://pynative.com/python-mysql-insert-data-into-database-table/
+- [5]https://pimylifeup.com/raspberry-pi-mysql/
+- [6]https://www.w3schools.com/python/python_mysql_create_db.asp
+- [7]https://pimylifeup.com/raspberry-pi-humidity-sensor-dht22/
