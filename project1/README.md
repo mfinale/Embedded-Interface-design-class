@@ -22,7 +22,7 @@
 -database=sensordb
 - Reference https://pimylifeup.com/raspberry-pi-mysql/ if more detailed instructions are needed.
 - navigate to "project1" folder
-- run project 1 gui.py `type the command here`
+- run project1gui.py `python3 project1gui.py`
 
 ## Project Work
 Application developed by Michael Finale.  
