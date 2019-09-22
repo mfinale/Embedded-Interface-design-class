@@ -1,7 +1,7 @@
-#EID Project1: DHT22 Sensor Python QT application  
+# EID Project1: DHT22 Sensor Python QT application  
 
-##Author: Michael Finale
-##Installation Instructions
+## Author: Michael Finale
+## Installation Instructions
 - clone repo from https://github.com/mfinale/Embedded-Interface-design-class.git
 - install mySQL sriver for python3 by running the following command from the terminal `sudo pip3 install mysql-connector`
 - install mySQL `sudo apt install mariadb-server`
@@ -24,7 +24,12 @@ Reference https://pimylifeup.com/raspberry-pi-mysql/ if more detailed instructio
 - navigate to "project1" folder
 - run project 1 gui.py `type the command here`
 
-##References
+## Project Work
+Application developed by Michael Finale.  
+
+## Project Additions
+
+## References
 [1]https://www.geeksforgeeks.org/python-introduction-matplotlib/
 [2]https://doc.qt.io/qtforpython/PySide2/QtCore/QTimer.html
 [3]https://pythonspot.com/pyqt5-image/
