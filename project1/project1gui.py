@@ -1,7 +1,10 @@
 # clone from git
 # install mySQL drive for python3 sudo pip3 install mysql-connector
 # install mySQL and create a local database with user and password info https://pimylifeup.com/raspberry-pi-mysql/
+#host="localhost",user="eiduser",passwd="Shrek2",
+ #                              database='sensordb'
 # install DHT library for Raspberry Pi sudo pip3 install Adafruit_DHT
+# wire dht sensor to raspberry pi as shown (ref figure)
 # install qt5?? see notes from powerpoint
 import mysql.connector
 import Adafruit_DHT
@@ -9,7 +12,6 @@ import datetime
 import time
 import matplotlib.pyplot as plt
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PIL import Image
 
 
 #DHT sensor intialization
@@ -31,7 +33,7 @@ class Ui_Dialog(object):
     read_count = 0
     max_humid = 300
     max_temp = 300
-    
+
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dh22 Sensor Interface")
         Dialog.resize(941, 490)
@@ -59,7 +61,7 @@ class Ui_Dialog(object):
         self.alarm_message = QtWidgets.QLabel(Dialog)
         self.alarm_message.setGeometry(QtCore.QRect(720, 90, 190, 90))
         self.alarm_message.setObjectName("alarm_message")
-        self.alarm_message.setWordWrap(True)  
+        self.alarm_message.setWordWrap(True)
         font = QtGui.QFont("Arial", 15, QtGui.QFont.Bold)
         self.alarm_message.setFont(font)
         self.setlimits_btn = QtWidgets.QPushButton(Dialog)
@@ -80,20 +82,24 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
-        
+
         #setup timer for periodic readings to update status line and store data every 15 seconds
         self.read_timer = QtCore.QTimer()
         self.read_timer.setSingleShot(False)
         self.read_timer.timeout.connect(self.store_sensor_data)
         self.read_timer.start(15000)
-        
+
         #read data on button press
         self.read_data_btn.clicked.connect(self.get_instant_sensor_data)
-        
+
         #set max limits of temper and humidty on button press
         self.setlimits_btn.clicked.connect(self.set_limits)
-        
+
+        #plot temperature on button press
         self.plot_temp_btn.clicked.connect(self.plot_temp)
+
+        #plot humidity on button press
+        self.plot_hum_btn.clicked.connect(self.plot_humid)
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
@@ -126,19 +132,20 @@ class Ui_Dialog(object):
                 self.read_data_out.setText("Failed to retrieve sensor data. Check DHT22 sensor connection.")
         except:
             self.read_data_out.setText("Sensor Error")
-            
+
 
 
     # called by timer. Acquires sensor data and stores in a mysql db for 30 reads then does nothing
-    def store_sensor_data(self):      
+    def store_sensor_data(self):
         if self.read_count == 30:
             return
-        else: 
+        else:
             val = self.get_sensor_data()
             sql = "INSERT INTO sensordata (timestamp, temp, humid) VALUES (%s, %s, %s)"
             mycursor.execute(sql, val)
             mydb.commit()
         self.read_count = self.read_count +1
+        print("sensor reading #"+str(self.read_count))
 
     #This is called by timer periodically. Get sensor data and status and print to label
     def get_sensor_data(self):
@@ -159,7 +166,7 @@ class Ui_Dialog(object):
             self.status_out.setText("Sensor Error")
             time = str(datetime.datetime.now())
             return (time, "0.0", "0.0")
-    
+
     def set_limits(self):
         try:
             self.max_humid = float(self.hum_limit_in.text())
@@ -167,8 +174,8 @@ class Ui_Dialog(object):
             print ("max humidity and temp are:" + str(self.max_humid) + " " + str(self.max_temp))
         except:
             return
-        
-    # check readings and write an alarm message if readings exceed limits   
+
+    # check readings and write an alarm message if readings exceed limits
     def alarm(self, chk_temp, chk_humid):
         if chk_temp > self.max_temp:
             self.alarm_message.setText("<font color='red'>Warning: High Temp</font>")
@@ -178,9 +185,9 @@ class Ui_Dialog(object):
             self.alarm_message.setText("<font color='red'>Warning: High Temp and Humidty</font>")
         elif chk_humid < self.max_humid and chk_temp < self.max_temp :
             self.alarm_message.setText("<font color='green'>Temp and Humidty OK</font>")
-                   
-    
-        #get last desired readings of humid data
+
+
+    #get last desired readings of humid data
     def retrieve_humid_data(self, rows):
         mycursor.execute("SELECT * FROM \
         ( SELECT timestamp, humid FROM sensordata ORDER BY timestamp DESC LIMIT "+str(rows)+ " )\
@@ -194,7 +201,7 @@ class Ui_Dialog(object):
         sub ORDER by timestamp ASC")
         return mycursor.fetchall()
 
-        
+    #plot last ten temperature readings
     def plot_temp(self):
         data = self.retrieve_temp_data(10)
         time_x = []
@@ -208,11 +215,31 @@ class Ui_Dialog(object):
             return
             #nodata has been collected
         plt.xlabel('Time', fontsize=18)
-        plt.ylabel('Temperature °C', fontsize=16)
-        plt.xticks(rotation=45)
+        plt.ylabel('Temperature (°C)', fontsize=14)
+        plt.xticks(rotation=90)
+        plt.tight_layout()
         plt.show()
-        
-    
+
+    #plot last ten humidity readings
+    def plot_humid(self):
+        data = self.retrieve_humid_data(10)
+        time_x = []
+        temp_y =[]
+        for i in range(0,len(data)):
+            time_x.append(data[i][0])
+            temp_y.append(data[i][1])
+        try:
+            plt.plot(time_x,temp_y)
+        except:
+            return
+            #nodata has been collected
+        plt.xlabel('Time', fontsize=18)
+        plt.ylabel('Humidty (%)', fontsize=14)
+        plt.xticks(rotation=90)
+        plt.tight_layout()
+        plt.show()
+
+
 
 
 
@@ -224,4 +251,3 @@ if __name__ == "__main__":
     ui.setupUi(Dialog)
     Dialog.show()
     sys.exit(app.exec_())
-
