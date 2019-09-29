@@ -14,13 +14,20 @@ wss.on('connection', ws => {
   ws.send('Hello! Message From Server!!')
 })
 
+//start connection to sensor db
 var db_con = mysql.createConnection({
   host: "localhost",
   user: "eiduser",
-  password: "Shrek2"
+  password: "Shrek2",
+  database: "sensordb"
 });
 
+//on connection do this
 db_con.connect(function(err) {
   if (err) throw err;
   console.log("Connected!");
+  db_con.query("SELECT * FROM sensordata", function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+  });
 });
