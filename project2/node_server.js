@@ -1,7 +1,7 @@
 // server.js
  
 const WebSocket = require('ws')
-
+var mysql = require('mysql'); 
 //open webscoket on local host port 8080 
 const wss = new WebSocket.Server({ port: 8080 })
  
@@ -13,3 +13,14 @@ wss.on('connection', ws => {
   })
   ws.send('Hello! Message From Server!!')
 })
+
+var db_con = mysql.createConnection({
+  host: "localhost",
+  user: "eiduser",
+  password: "Shrek2"
+});
+
+db_con.connect(function(err) {
+  if (err) throw err;
+  console.log("Connected!");
+});
