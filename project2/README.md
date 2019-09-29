@@ -10,6 +10,8 @@
 
 - wire dht sensor to raspberry pi as shown in the figure below[7] :
  
+Install nvm, node, and npm•curl -o-https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash•Restart your terminal•nvm –version•Should return a version number like 0.34.0•nvm install node •This installs the latest node, 12.9.0•nvm install 10.16.3•This installs the stable LTS 10.16.3 node
+
 
 ![](https://cdn.pimylifeup.com/wp-content/uploads/2019/05/Raspberry-Pi-Humidity-Sensor-DHT22-Wiring-Schematic.png)
 
