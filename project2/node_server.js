@@ -8,6 +8,7 @@ const wss = new WebSocket.Server({ port: 8080 })
 //once connection is made print received message and
 //send a message back
 wss.on('connection', ws => {
+  console.log("Connected to Client");
   ws.on('message', message => {
     console.log(`Received message => ${message}`)
   })
@@ -25,7 +26,7 @@ var db_con = mysql.createConnection({
 //on connection do this
 db_con.connect(function(err) {
   if (err) throw err;
-  console.log("Connected!");
+  console.log("Connected to Sensor Database");
   db_con.query("SELECT * FROM sensordata", function (err, result, fields) {
     if (err) throw err;
     console.log(result);
