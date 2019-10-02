@@ -47,7 +47,7 @@
           $("div#message_details").show();
           log("***Tornado Server Connection Opened**");
           };
-        });
+        
  
         // Send websocket message function
         $("#send").click(function(evt) {
@@ -69,11 +69,11 @@
       
       node_ws.onclose = function(e) {
             log("***Node_js/mySQL Connection Closed***");
-          }
+         }
       node_ws.onerror = (error) => {
         console.log(`WebSocket error: ${error}`);
       };
- 
+   });
   </script>
 </head>
  <body>
