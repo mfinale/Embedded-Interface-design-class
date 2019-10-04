@@ -1,93 +1,177 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Temp and Humidity Webpage</title>
-    <meta charset="utf-8" />
-    <style type="text/css">
-      body {
-        text-align: center;
-        min-width: 500px;
-      }
-    </style>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>DHT22 Sensor</title>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+	* {
+	  box-sizing: border-box;
+	}
 
-  <script src="http://code.jquery.com/jquery.min.js"></script>
-  <script>
+	body {
+	  font-family: Arial, Helvetica, sans-serif;
+	}
 
-       // log information to page
-      log = function(data){
-        $("div#terminal").prepend("</br>" +data);
-        console.log(data);
-      };
-      
-      
-      $(document).ready(function () {
-        $("div#message_details").hide()
- 
-        var ws;
- 
- 
- 
-        // create websocket instance
-        ws = new WebSocket('ws://localhost:8888/ws');
-           
-        // Handle incoming websocket message callback
-        ws.onmessage = function(evt) {
-          log("Message Received from tornado: " + evt.data)
-          alert("message received from tornado: " + evt.data);
-          };
- 
-        // Close Websocket callback
-        ws.onclose = function(evt) {
-          log("***Tornado Server Connection Closed***");
-          alert("Tornado Server Connection close");
-          };
- 
-        // Open Websocket callback
-        ws.onopen = function(evt) { 
-          $("div#message_details").show();
-          log("***Tornado Server Connection Opened**");
-          };
-        
- 
-        // Send websocket message function
-        $("#send").click(function(evt) {
-            log("Sending Message: "+$("#message").val());
-            ws.send($("#message").val());
-        });
- 
-      
-      //open websocket to node js/sql server
-      const node_ws = new WebSocket('ws://localhost:8080');
-      node_ws.onopen = function() {
-          console.log('WebSocket Client Connected');
-          node_ws.send('Message received from Client.');
-          log("***Node_js/mySQL Connection Opened**");
-      };
-      node_ws.onmessage = function(e) {
-        console.log("Received: '" + e.data + "'");
-      };
-      
-      node_ws.onclose = function(e) {
-            log("***Node_js/mySQL Connection Closed***");
-         }
-      node_ws.onerror = (error) => {
-        console.log(`WebSocket error: ${error}`);
-      };
-   });
-  </script>
-</head>
- <body>
-    <h1>DHT22 Web Interface</h1>
-    <div id="connection_details">
-    </div>
-    <div id="message_details">
-        </br></br>
-        <label for="message">message:</label>
-        <input type="text" id="message" value="Hello World!"/><br />
-        <input type="submit" id="send" value="send" />
-    </div>
-    <div id="terminal">
-        
-    </div>
-  </body>
+	/* Style the header */
+	header {
+	  background-color: #666;
+	  padding: 30px;
+	  text-align: center;
+	  font-size: 35px;
+	  color: white;
+	}
+
+	/* Create two columns/boxes that floats next to each other */
+	nav {
+	  float: left;
+	  width: 30%;
+	  height: 500px; /* only for demonstration, should be removed */
+	  background: #ccc;
+	  padding: 20px;
+	}
+
+	/* Style the list inside the menu */
+	nav ul {
+	  list-style-type: none;
+	  padding: 0;
+	}
+
+	article {
+	  float: left;
+	  padding: 20px;
+	  width: 70%;
+	  background-color: #f1f1f1;
+	  height: 500px; /* only for demonstration, should be removed */
+	}
+
+	/* Clear floats after the columns */
+	section:after {
+	  content: "";
+	  display: table;
+	  clear: both;
+	}
+
+	/* Style the footer */
+	footer {
+	  background-color: #777;
+	  padding: 50px;
+	  text-align: center;
+	  color: white;
+	}
+
+	/* Responsive layout - makes the two columns/boxes stack on top of each other instead of next to each other, on small screens */
+	@media (max-width: 600px) {
+	  nav, article {
+		width: 100%;
+		height: auto;
+	  }
+	}
+	</style>
+	<script src="./DHT22 Sensor_files/jquery.min.js.download"></script>
+	<script>
+		   // log information to  function
+		  log = function(data){
+			$("footer").prepend("</br>" +data);
+			console.log(data);
+		  };
+		  
+		  //proceed once web page has loaded
+		  $(document).ready(function () {
+			$("div#message_details").hide()
+	 
+			var ws;
+	 
+	 
+			//---------------------------python app socket handler--------------------------------
+			
+			// create websocket instance to python application on port 8888
+			ws = new WebSocket('ws://localhost:8888/ws');
+			   
+			// Handle incoming websocket message from python application
+			ws.onmessage = function(evt) {
+			  console.log("Message Received from tornado: " + evt.datadata);
+			  };
+	 
+			// Close Websocket callback
+			ws.onclose = function(evt) {
+			  console.log("***Tornado Server Connection Closed***");
+			  log("***Tornado Server Connection Closed***");
+			  alert("Tornado Server Connection close");
+			  };
+	 
+			// Open Websocket callback
+			ws.onopen = function(evt) { 
+			  $("div#message_details").show();
+			  log("***Tornado Server Connection Opened**");
+			  };
+			
+	 
+			// Send websocket message function
+			$("#send").click(function(evt) {
+				log("Sending Message: "+$("#message").val());
+				ws.send($("#message").val());
+			});
+	 
+			  
+			//open websocket to node js/sql server
+			
+			//---------------------------node js socket handler--------------------------------
+			
+			const node_ws = new WebSocket('ws://localhost:8080');
+			node_ws.onopen = function() {
+				console.log('WebSocket Client Connected');
+				node_ws.send('Message received from Client.');
+				log("***Node_js/mySQL Connection Opened**");
+			};
+			node_ws.onmessage = function(e) {
+				console.log("Received: '" + e.data + "'");
+			};
+			  
+			node_ws.onclose = function(e) {
+				log("***Node_js/mySQL Connection Closed***");
+			}
+			node_ws.onerror = (error) => {
+				console.log(`WebSocket error: ${error}`);
+			};
+			
+			// Read last entry in sql database via node.js server 
+			read_from_nodejs = function(){
+				console.log("Sending command to read last value from node.js server");
+				node_ws.send('Message received from Client.');
+			};
+			
+			
+	   });
+	</script>
+	</head>
+	
+	<body>
+		<header>
+		  <h2>DHT22 Sensor Web Interface</h2>
+		</header>
+
+		<section>
+		  <nav>
+			<ul>
+				<button type="button" onclick="read_from_nodejs()">Read last database entry.</button>
+				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
+				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
+				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
+			</ul>
+		  </nav>
+		  
+		  <article>
+			<h1>London</h1>
+			<p>London is the capital city of England. It is the most populous city in the  United Kingdom, with a metropolitan area of over 13 million inhabitants.</p>
+			<p>Standing on the River Thames, London has been a major settlement for two millennia, its history going back to its founding by the Romans, who named it Londinium.</p>
+		  </article>
+		</section>
+
+		<footer>
+		  <p>status</p>
+		</footer>
+
+
+	</body>
+
 </html>
