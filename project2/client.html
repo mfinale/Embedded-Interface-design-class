@@ -94,7 +94,12 @@
 				console.log("Message Received from tornado: " + evt.data);
 				$('#SourceScreen').text('Reply from Python app: ');
 				$('#OutputScreen').text(evt.data);
-				
+				var str = "Part1 / Part 2 / Part 3";
+				var res = str.split("");
+				var time = res[0]
+				var temp = res[1]
+				var humidity = res[2]	
+				$('#OutputScreen').text(humidity);
 			  };
 	 
 			// Close Websocket callback
