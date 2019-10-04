@@ -62,7 +62,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 temperature = "{0:0.2f}".format(temperature)
                 humidity = "{0:0.2f}".format(humidity)
                 time = str(datetime.datetime.now())
-                return str(time + "       Temperature : " + temperature+"*C " + "  Humidity : "+ humidity+"%")
+                return str("Timestamp: " + time + "      / Temperature : " + temperature+"*C " + " / Humidity : "+ humidity+"%")
             else:
                 return ("Failed to retrieve sensor data. Check DHT22 sensor connection.")
         except:
@@ -77,8 +77,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         print ('message received:  %s' % message)
-        # Reverse Message and send it back
-        print ('sending back message: %s' % message[::-1])
         print (self.WS_get_instant_sensor_data())
         self.write_message(str(self.WS_get_instant_sensor_data()))
 

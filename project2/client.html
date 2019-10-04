@@ -75,6 +75,23 @@
 			$("footer").prepend("</br>" +data);
 		  };
 		  
+		  convert_temp = function(){
+			//read value from OutputScreen2
+			var str = $('#OutputScreen2').text();
+			var res = str.split(":");
+			var temp = res[1]
+			//parse out value
+			var n = temp.search('C')
+			if (n >1){
+				//extract numbder
+				//conver to integere
+				//convert to F
+				//make string with new number + *F
+			}
+			//print out to outputscreen 2
+			$('#OutputScreen2').text(temp);
+		  };
+		  
 
 		  
 		  //proceed once web page has loaded
@@ -93,13 +110,14 @@
 			ws.onmessage = function(evt) {
 				console.log("Message Received from tornado: " + evt.data);
 				$('#SourceScreen').text('Reply from Python app: ');
-				$('#OutputScreen').text(evt.data);
-				var str = "Part1 / Part 2 / Part 3";
-				var res = str.split("");
+				var str = evt.data
+				var res = str.split("/");
 				var time = res[0]
 				var temp = res[1]
 				var humidity = res[2]	
-				$('#OutputScreen').text(humidity);
+				$('#OutputScreen1').text(time);
+				$('#OutputScreen2').text(temp);
+				$('#OutputScreen3').text(humidity);
 			  };
 	 
 			// Close Websocket callback
@@ -166,7 +184,7 @@
 			<ul>
 				<button type="button" onclick="read_from_nodejs()">Read last sensordatabase entry from Node.js.</button>
 				<button type="button" onclick="read_from_pythonapp()">Read sensor data from python application.</button>
-				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
+				<button type="button" onclick="convert_temp()">Convert Temperature Celsius/Fahrenheit</button>
 				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
 			</ul>
 		  </nav>
@@ -176,8 +194,14 @@
 			<div id="SourceScreen">
 			<p></p>
 			</div>
-			<div id="OutputScreen">
+			<div id="OutputScreen1">
 			<p>Results of each button click will appear here.</p>
+			</div>
+			<div id="OutputScreen2">
+			<p></p>
+			</div>
+			<div id="OutputScreen3">
+			<p></p>
 			</div>
 			
 		  </article>
