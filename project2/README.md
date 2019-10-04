@@ -11,6 +11,9 @@ npm install ws
 pip install tornado
 
 ![](https://cdn.pimylifeup.com/wp-content/uploads/2019/05/Raspberry-Pi-Humidity-Sensor-DHT22-Wiring-Schematic.png)
+hhttps://stackoverflow.com/questions/4789837/how-to-terminate-a-python-subprocess-launched-with-shell-truettps://stackoverflow.com/questions/4789837/how-to-terminate-a-python-subprocess-launched-with-shell-true
+https://stackoverflow.com/questions/25905752/close-the-program-using-keyboard-interrupt-in-python
+https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
 
 - Install PyQT5 : 
 `sudo apt-get install qt5-default pyqt5-dev pyqt5-dev-tools`

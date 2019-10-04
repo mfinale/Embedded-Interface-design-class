@@ -67,7 +67,8 @@
 	  }
 	}
 	</style>
-	<script src="./DHT22 Sensor_files/jquery.min.js.download"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	
 	<script>
 		   // log information to  function
 		  log = function(data){
@@ -77,7 +78,7 @@
 		  
 		  //proceed once web page has loaded
 		  $(document).ready(function () {
-			$("div#message_details").hide()
+			
 	 
 			var ws;
 	 
@@ -101,7 +102,6 @@
 	 
 			// Open Websocket callback
 			ws.onopen = function(evt) { 
-			  $("div#message_details").show();
 			  log("***Tornado Server Connection Opened**");
 			  };
 			
@@ -120,7 +120,6 @@
 			const node_ws = new WebSocket('ws://localhost:8080');
 			node_ws.onopen = function() {
 				console.log('WebSocket Client Connected');
-				node_ws.send('Message received from Client.');
 				log("***Node_js/mySQL Connection Opened**");
 			};
 			node_ws.onmessage = function(e) {
@@ -137,7 +136,7 @@
 			// Read last entry in sql database via node.js server 
 			read_from_nodejs = function(){
 				console.log("Sending command to read last value from node.js server");
-				node_ws.send('Message received from Client.');
+				node_ws.send('Read one from db');
 			};
 			
 			
@@ -153,7 +152,7 @@
 		<section>
 		  <nav>
 			<ul>
-				<button type="button" onclick="read_from_nodejs()">Read last database entry.</button>
+				<button type="button" onclick="read_from_nodejs()">Read last database entry from Node.js.</button>
 				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
 				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
 				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
