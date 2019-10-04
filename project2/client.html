@@ -75,10 +75,7 @@
 			$("footer").prepend("</br>" +data);
 		  };
 		  
-		  log = function(text){
-			$("footer").prepend("</br>" +data);
-		  };
-		  
+
 		  
 		  //proceed once web page has loaded
 		  $(document).ready(function () {
@@ -101,7 +98,6 @@
 			ws.onclose = function(evt) {
 			  console.log("***Tornado Server Connection Closed***");
 			  log("***Tornado Server Connection Closed***");
-			  alert("Tornado Server Connection close");
 			  };
 	 
 			// Open Websocket callback
@@ -128,7 +124,7 @@
 			};
 			node_ws.onmessage = function(e) {
 				console.log("Received: '" + e.data + "'");
-				$('#OutputScreen').text('The replaced text.');
+				$('#OutputScreen').text(e.data);
 			};
 			  
 			node_ws.onclose = function(e) {
