@@ -52,16 +52,36 @@ mycursor = mydb.cursor()
 mycursor.execute("DROP TABLE sensordata")
 mycursor.execute("CREATE TABLE sensordata ( timestamp VARCHAR(30),temp float(10,2), humid float(10,2))")
 
-
+#Websocket Handler class that is used to create a tornado websocket server.
 class WSHandler(tornado.websocket.WebSocketHandler):
+      #get timestamp, temperature in celsius, and humidity for readings on demand and then print to label
+    def WS_get_instant_sensor_data(self):
+        try:
+            humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
+            if humidity is not None and temperature is not None:
+                temperature = "{0:0.2f}".format(temperature)
+                humidity = "{0:0.2f}".format(humidity)
+                time = str(datetime.datetime.now())
+                return str(time + "       Temperature : " + temperature+"*C " + "  Humidity : "+ humidity+"%")
+            else:
+                return ("Failed to retrieve sensor data. Check DHT22 sensor connection.")
+        except:
+            return ("Sensor Error")
+
+
+
+
     def open(self):
-        print ('new connection')
+        print ('Recieved connection from client')
+
 
     def on_message(self, message):
         print ('message received:  %s' % message)
         # Reverse Message and send it back
         print ('sending back message: %s' % message[::-1])
-        self.write_message(message[::-1])
+        print (self.WS_get_instant_sensor_data())
+        self.write_message(str(self.WS_get_instant_sensor_data()))
+
 
     def on_close(self):
         print ('connection closed')
@@ -69,6 +89,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def check_origin(self, origin):
         return True
 
+#Initialization of tornado websocket server. The server is an in the UI class where it's IOLoop is tied to a QT timer.
+#This was done to allow the PYQT and Tornado event loops to run in parallalel.
 def run_tornado():
     print ('running tornado...')
     application = tornado.web.Application([(r'/ws', WSHandler),])

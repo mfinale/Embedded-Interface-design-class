@@ -91,7 +91,10 @@
 			   
 			// Handle incoming websocket message from python application
 			ws.onmessage = function(evt) {
-			  console.log("Message Received from tornado: " + evt.datadata);
+				console.log("Message Received from tornado: " + evt.data);
+				$('#SourceScreen').text('Reply from Python app: ');
+				$('#OutputScreen').text(evt.data);
+				
 			  };
 	 
 			// Close Websocket callback
@@ -106,11 +109,12 @@
 			  };
 			
 	 
-			// Send websocket message function
-			$("#send").click(function(evt) {
-				log("Sending Message: "+$("#message").val());
-				ws.send($("#message").val());
-			});
+			// Send command to query sensor data from python application
+			read_from_pythonapp = function(){
+				console.log("Sending command to read last value from node.js server");
+				ws.send('Read one from db');
+				
+			};
 	 
 			  
 			//open websocket to node js/sql server
@@ -124,6 +128,7 @@
 			};
 			node_ws.onmessage = function(e) {
 				console.log("Received: '" + e.data + "'");
+				$('#SourceScreen').text('Reply from Node.js: ');
 				$('#OutputScreen').text(e.data);
 			};
 			  
@@ -134,7 +139,7 @@
 				console.log(`WebSocket error: ${error}`);
 			};
 			
-			// Read last entry in sql database via node.js server 
+			// Send command to query last entry in sql database via node.js server 
 			read_from_nodejs = function(){
 				console.log("Sending command to read last value from node.js server");
 				node_ws.send('Read one from db');
@@ -154,8 +159,8 @@
 		<section>
 		  <nav>
 			<ul>
-				<button type="button" onclick="read_from_nodejs()">Read last database entry from Node.js.</button>
-				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
+				<button type="button" onclick="read_from_nodejs()">Read last sensordatabase entry from Node.js.</button>
+				<button type="button" onclick="read_from_pythonapp()">Read sensor data from python application.</button>
 				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
 				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
 			</ul>
@@ -163,9 +168,13 @@
 		  
 		  <article>
 			<h1>Output</h1>
+			<div id="SourceScreen">
+			<p></p>
+			</div>
 			<div id="OutputScreen">
 			<p>Results of each button click will appear here.</p>
 			</div>
+			
 		  </article>
 		</section>
 
