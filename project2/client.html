@@ -81,13 +81,18 @@
 			var res = str.split(":");
 			var temp = res[1]
 			//parse out value
-			var n = temp.search('C')
+			var n = temp.search("C")
 			if (n >1){
-				//extract numbder
-				//conver to integere
-				//convert to F
-				//make string with new number + *F
+				temp = temp.split("*")[0] 
+				temp = (temp*(9/5))+32+ '*F'
+				temp = 'Temperature : '+ temp
 			}
+			else {
+				temp = temp.split("*")[0] 
+				temp = (temp-32)*(5/9)+ '*C'
+				temp = 'Temperature : '+ temp	
+			}
+			
 			//print out to outputscreen 2
 			$('#OutputScreen2').text(temp);
 		  };
