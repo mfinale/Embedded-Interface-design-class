@@ -41,8 +41,14 @@
 	  padding: 20px;
 	  width: 70%;
 	  background-color: #f1f1f1;
-	  height: 500px; /* only for demonstration, should be removed */
+	  height: 500px; 
+	  
 	}
+	
+	/*add border to table
+		table, th, td {
+		border: 1px solid black;
+		}
 
 	/* Clear floats after the columns */
 	section:after {
@@ -66,6 +72,11 @@
 		height: auto;
 	  }
 	}
+	
+	
+	
+	
+	
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	
@@ -75,12 +86,23 @@
 			$("footer").prepend("</br>" +data);
 		  };
 		  
+		  //add data to table
+		  add_to_table = function (index, pythondata, nodedata) {
+			  var table = document.getElementById("response_table");
+			  var row = table.insertRow(1);
+			  var cell1 = row.insertCell(0);
+			  var cell2 = row.insertCell(1);
+			  var cell3 = row.insertCell(2);		  
+			  cell1.innerHTML = index;
+			  cell2.innerHTML = pythondata;
+			  cell3.innerHTML = nodedata;
+			}
+		  
+		  //function to convert displayed temperature 
 		  convert_temp = function(){
-			//read value from OutputScreen2
 			var str = $('#OutputScreen2').text();
 			var res = str.split(":");
 			var temp = res[1]
-			//parse out value
 			var n = temp.search("C")
 			if (n >1){
 				temp = temp.split("*")[0] 
@@ -94,8 +116,6 @@
 				temp= temp.toFixed(2)
 				temp = 'Temperature : '+ temp +'*C'
 			}
-			
-			//print out to outputscreen 2
 			$('#OutputScreen2').text(temp);
 		  };
 		  
@@ -116,15 +136,19 @@
 			// Handle incoming websocket message from python application
 			ws.onmessage = function(evt) {
 				console.log("Message Received from tornado: " + evt.data);
-				$('#SourceScreen').text('Reply from Python app: ');
-				var str = evt.data
-				var res = str.split("/");
-				var time = res[0]
-				var temp = res[1]
-				var humidity = res[2]	
-				$('#OutputScreen1').text(time);
-				$('#OutputScreen2').text(temp);
-				$('#OutputScreen3').text(humidity);
+				if (evt.data == 'pick a dam string'){
+					$('#SourceScreen').text('Reply from Python app: ');
+					var str = evt.data
+					var res = str.split("/");
+					var time = res[0]
+					var temp = res[1]
+					var humidity = res[2]	
+					$('#OutputScreen1').text(time);
+					$('#OutputScreen2').text(temp);
+					$('#OutputScreen3').text(humidity);
+					}
+				else if  (evt.data == 'string for network response test'){}
+				else {console.log("Recieved invalid message from tornado")}
 			  };
 	 
 			// Close Websocket callback
@@ -148,10 +172,11 @@
 			};
 	 
 			  
-			//open websocket to node js/sql server
+			
 			
 			//---------------------------node js socket handler--------------------------------
 			
+			//open websocket to node js/sql server
 			const node_ws = new WebSocket('ws://localhost:8080');
 			node_ws.onopen = function() {
 				console.log("***Node_js/mySQL Connection Opened**");
@@ -184,6 +209,14 @@
 				
 			};
 			
+			//----------------------functions for both node.js and python server-------------------------------
+			
+			test_network_responsiveness = function(){
+				console.log("Requesting 10 database entries from node.js server and python server");
+				node_ws.send('fetch 10 samples');
+				ws.send('fetch 10 samples');
+				
+			};
 			
 	   });
 	</script>
@@ -200,11 +233,11 @@
 				<button type="button" onclick="read_from_nodejs()">Read last sensordatabase entry from Node.js.</button>
 				<button type="button" onclick="read_from_pythonapp()">Read sensor data from python application.</button>
 				<button type="button" onclick="convert_temp()">Convert Temperature Celsius/Fahrenheit</button>
-				<button type="button" onclick="alert(&#39;Hello world!&#39;)">Click Me!</button>
+				<button type="button" onclick="add_to_table(1,1,1)">Test network responsiveness</button>
 			</ul>
 		  </nav>
 		  
-		  <article>
+		 <article>
 			<h1>Output</h1>
 			<div id="SourceScreen">
 			<p></p>
@@ -218,12 +251,26 @@
 			<div id="OutputScreen3">
 			<p></p>
 			</div>
-			
+				
+		    
+		   <table id="response_table" style="width:70%"  border="4" >
+			  <tr>
+				<th>ID</th>
+				<th>Node.js</th> 
+				<th>Python/tornado</th>
+			  </tr>
+		  </table>
+					
 		  </article>
+		  
+		  
+		  
+		  
+		  
 		</section>
 
 		<footer>
-		  <p>status</p>
+		  <p>- status -</p>
 		</footer>
 
 
