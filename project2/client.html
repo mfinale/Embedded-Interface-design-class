@@ -84,13 +84,15 @@
 			var n = temp.search("C")
 			if (n >1){
 				temp = temp.split("*")[0] 
-				temp = (temp*(9/5))+32+ '*F'
-				temp = 'Temperature : '+ temp
+				temp = ((temp*(9/5))+32)
+				temp = temp.toFixed(2)
+				temp = 'Temperature : '+ temp+ '*F'
 			}
-			else {
+			else if (n<1){
 				temp = temp.split("*")[0] 
-				temp = (temp-32)*(5/9)+ '*C'
-				temp = 'Temperature : '+ temp	
+				temp = (temp-32)*(5/9)
+				temp= temp.toFixed(2)
+				temp = 'Temperature : '+ temp +'*C'
 			}
 			
 			//print out to outputscreen 2
@@ -134,12 +136,13 @@
 			// Open Websocket callback
 			ws.onopen = function(evt) { 
 			  log("***Tornado Server Connection Opened**");
+			  console.log("***Tornado Server Connection Opened***");
 			  };
 			
 	 
 			// Send command to query sensor data from python application
 			read_from_pythonapp = function(){
-				console.log("Sending command to read last value from node.js server");
+				console.log("Sending command to read last value from python app");
 				ws.send('Read one from db');
 				
 			};
@@ -151,13 +154,20 @@
 			
 			const node_ws = new WebSocket('ws://localhost:8080');
 			node_ws.onopen = function() {
-				console.log('WebSocket Client Connected');
+				console.log("***Node_js/mySQL Connection Opened**");
 				log("***Node_js/mySQL Connection Opened**");
 			};
 			node_ws.onmessage = function(e) {
 				console.log("Received: '" + e.data + "'");
 				$('#SourceScreen').text('Reply from Node.js: ');
-				$('#OutputScreen').text(e.data);
+				var str = e.data
+				var res = str.split("/");
+				var time = res[0]
+				var temp = res[1]
+				var humidity = res[2]	
+				$('#OutputScreen1').text(time);
+				$('#OutputScreen2').text(temp);
+				$('#OutputScreen3').text(humidity);
 			};
 			  
 			node_ws.onclose = function(e) {

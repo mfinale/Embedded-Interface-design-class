@@ -21,11 +21,10 @@ db_con.connect(function(err) {
 
 
 
-
 //once websocket connection is made. Wait for messages.
 wss.on('connection', ws => {
   
-  ws.send('Connected to node_js server!');
+
   
   ws.on('message', message => {
     console.log("Message from Client: "+ message);
@@ -40,13 +39,12 @@ wss.on('connection', ws => {
       var time = result[0].timestamp;
       var temp= result[0].temp;
       var humid = result[0].humid;
-      reading = time + "       Temperature : " + temp+"*C " + "  Humidity : "+ humid+"%"
+      reading = "Timestamp: " + time + "      / Temperature : " + temp+"*C " + " / Humidity : "+ humid+"%"
       console.log(reading);
       ws.send(reading);
       });
     } 
     
-    else if (message=="bye") {} 
     
     else {
       console.log("Invalid command from client:");
