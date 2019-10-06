@@ -116,6 +116,7 @@
 			$('#OutputScreen3').hide();
 		  };
 		  
+		  //function to show output paragraph
 		  show_output = function(){
 			$('#SourceScreen').show();
 			$('#OutputScreen1').show();
@@ -255,7 +256,27 @@
 					$('#OutputScreen2').text(temp);
 					$('#OutputScreen3').text(humidity);
 				};
-			  var message = evt.data
+				else if  (message.includes("nodefetch")){
+					clear_table();
+					hide_output();
+					var str = evt.data
+					str = str.replace('pyfetch',',');
+					str = str.replace('[','');
+					str = str.replace(']','');
+					str = str.replace(/\(/g ,'');
+					str = str.replace(/,/g ,'__');
+					var res = str.split(")");
+					var i;
+					for (i = res.length-1; i >0; i--) {
+						
+						
+						add_to_table(i,res[i-1],1)
+					}
+
+					
+					}
+				else {console.log("Recieved invalid message from tornado")}
+			  };
                 
 				
 			 } 
