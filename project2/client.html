@@ -165,6 +165,7 @@
                 var message = evt.data
                 console.log(jQuery.type(message))
 				//if message contains pyread then it is a reply to the "Read from sensor" command
+				//Parse data and display it on web page
 				if (message.includes("pyread")){
 					show_output();
 					hide_table();
@@ -179,6 +180,8 @@
 					$('#OutputScreen2').text(temp);
 					$('#OutputScreen3').text(humidity);
 					}
+				//if message contains pyfetch then it contains the last 10 db entries from python
+				//Parse this info and load into table to compare against node.js response
 				else if  (message.includes("pyfetch")){
 					clear_table();
 					hide_output();
@@ -234,18 +237,27 @@
 			};
 			node_ws.onmessage = function(e) {
 				console.log("Received: '" + e.data + "'");
-				$('#SourceScreen').text('Reply from Node.js: ');
-				var str = e.data
-				var res = str.split("/");
-				var time = res[0]
-				var temp = res[1]
-				var humidity = res[2]	
-				$('#OutputScreen1').text(time);
-				$('#OutputScreen2').text(temp);
-				$('#OutputScreen3').text(humidity);
-			};
-			  
-			  
+				var message = e.data
+				console.log(jQuery.type(message))
+				//if message contains "noderead" then it is a reply to the "Read one from db" command
+				//Parse data and display it on web page
+				if (message.includes("noderead")){
+					show_output();
+					hide_table();
+					$('#SourceScreen').text('Reply from Node.js: ');
+					var str = e.data
+					var res = str.split("/");
+					var time = res[0]
+					var temp = res[1]
+					var humidity = res[2]	
+					$('#OutputScreen1').text(time);
+					$('#OutputScreen2').text(temp);
+					$('#OutputScreen3').text(humidity);
+				};
+			  var message = evt.data
+                
+				
+			 } 
 			  
 			node_ws.onclose = function(e) {
 				log("***Node_js/mySQL Connection Closed***");
