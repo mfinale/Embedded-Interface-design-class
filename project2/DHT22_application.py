@@ -1,14 +1,20 @@
 #!/usr/bin/env python
-"""project1gui.py:
+"""DHT22_application.py:
 DHT22 Temperature and Humidity interface for project 1 of Embedded Interface Design Course.
 This python application that runs a PyQt5 which interfaces with a DHT22 sensor with
 the following functions:
 - a button to read the current temperature (in Celsius) and humidity with corresponding timestamp
 - periodic readings from the DHT22 sensor every 15 seconds for up to 30 readings
+these readings are stored in a mySQL database
 - alarm system that is configured by setting the upper limits for the temperature
 and humidity
 - plotting of the last 10 temperature readings
 - plotting of the last 10 humidity readings
+Project 2 adds the following:
+-tornado websocket server and handler that responds to a html client
+-the tornado server is capable of sending sensor data from a sample as well
+as the last 10 sensor readings that are currently stored in the mySQL database mentioned above.
+
 
 Application was developed to be used on a Raspberry Pi 3 running Raspian Buster OS.
 Please view readme for installation details.
@@ -68,17 +74,27 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         except:
             return ("Sensor Error")
 
-
+    def retrieve_data(self, rows):
+        mycursor.execute("SELECT * FROM \
+        ( SELECT * FROM sensordata ORDER BY timestamp DESC LIMIT "+str(rows)+ " )\
+        sub ORDER by timestamp ASC")
+        result = mycursor.fetchall()
+        print (result)
+        return result
 
 
     def open(self):
-        print ('Recieved connection from client')
+        print ('Received connection from client')
 
-
+    #Handle messages from client
     def on_message(self, message):
         print ('message received:  %s' % message)
-        print (self.WS_get_instant_sensor_data())
-        self.write_message(str(self.WS_get_instant_sensor_data()))
+        if (message == 'Read from sensor'):
+            self.write_message('pyread'+str(self.WS_get_instant_sensor_data()))
+            print ('Sending sensor data to client')
+        elif (message == 'fetch 10 samples'):
+            self.write_message('pyfetch'+str(self.retrieve_data(10)))
+            print ('Sending sensor database data to client')
 
 
     def on_close(self):

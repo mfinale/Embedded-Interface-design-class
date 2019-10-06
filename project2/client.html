@@ -136,9 +136,13 @@
 			// Handle incoming websocket message from python application
 			ws.onmessage = function(evt) {
 				console.log("Message Received from tornado: " + evt.data);
-				if (evt.data == 'pick a dam string'){
+                var message = evt.data
+                console.log(jQuery.type(message))
+				//if message contains pyread then it is a reply to the "Read from sensor" command
+				if (message.includes("pyread")){
 					$('#SourceScreen').text('Reply from Python app: ');
 					var str = evt.data
+					str = str.replace('pyread','');
 					var res = str.split("/");
 					var time = res[0]
 					var temp = res[1]
@@ -147,7 +151,22 @@
 					$('#OutputScreen2').text(temp);
 					$('#OutputScreen3').text(humidity);
 					}
-				else if  (evt.data == 'string for network response test'){}
+				else if  (message.includes("pyfetch")){
+					var str = evt.data
+					str = str.replace('pyfetch','');
+					str = str.replace('[','');
+					str = str.replace(']','');
+					str = str.replace(/\(/g ,'');
+					var res = str.split(")");
+					console.log(res[0]);
+					console.log(res[1]);
+					var i;
+					for (i = 0; i < res.length; i++) {
+						add_to_table(i,res[i],1)
+					}
+
+					
+					}
 				else {console.log("Recieved invalid message from tornado")}
 			  };
 	 
@@ -167,7 +186,7 @@
 			// Send command to query sensor data from python application
 			read_from_pythonapp = function(){
 				console.log("Sending command to read last value from python app");
-				ws.send('Read one from db');
+				ws.send('Read from sensor');
 				
 			};
 	 
@@ -233,7 +252,7 @@
 				<button type="button" onclick="read_from_nodejs()">Read last sensordatabase entry from Node.js.</button>
 				<button type="button" onclick="read_from_pythonapp()">Read sensor data from python application.</button>
 				<button type="button" onclick="convert_temp()">Convert Temperature Celsius/Fahrenheit</button>
-				<button type="button" onclick="add_to_table(1,1,1)">Test network responsiveness</button>
+				<button type="button" onclick="test_network_responsiveness()">Test network responsiveness</button>
 			</ul>
 		  </nav>
 		  
