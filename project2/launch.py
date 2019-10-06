@@ -19,10 +19,7 @@ cmd1= "python3 DHT22_application.py"
 pro1 = subprocess.Popen(cmd1, stdout=subprocess.PIPE, 
                        shell=True, preexec_fn=os.setsid) 
 print("Starting DHT22 Sensor Gui and tornado server.")   
-#allow the python application to start up and populate mySQL db.
-#if user attempts to read empyt mysql db via node.js, the node.js server
-#closes.
-time.sleep(20)
+
                     
 cmd2= "node node_server.js"
 pro2 = subprocess.Popen(cmd2, stdout=subprocess.PIPE, 

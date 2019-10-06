@@ -273,18 +273,13 @@
 					str = str.replace(/,/g ,'');
 					str = str.replace(/\//g ,'');
 					var res = str.split(")");
-					console.log(str);
-					
-	
-					
+					console.log(res);						
 					var i;
 					for (i = res.length-1; i >0; i--) {
 						
-						add_to_node_table(i,1)
+						add_to_node_table(i,res[i-1])
 						
-					}
-					
-					
+					}								
 					}
 				else {console.log("Recieved invalid message from tornado")}
 			  };

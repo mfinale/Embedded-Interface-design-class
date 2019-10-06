@@ -36,12 +36,16 @@ wss.on('connection', ws => {
       db_cmd="SELECT * FROM (SELECT * FROM sensordata ORDER BY timestamp DESC LIMIT " + rows + ") sub ORDER by timestamp ASC"
       db_con.query(db_cmd, function (err, result, fields) {
       if (err) throw err;
-      var time = result[0].timestamp;
-      var temp= result[0].temp;
-      var humid = result[0].humid;
-      reading = "Timestamp: " + time + "      / Temperature : " + temp+"*C " + " / Humidity : "+ humid+"%"
-      console.log(reading);
-      ws.send('noderead'+reading);
+      //only do the following if there is atleast one entry in mysql db. 
+      if (result.length > 0){
+        var time = result[0].timestamp;
+        var temp= result[0].temp;
+        var humid = result[0].humid;
+        reading = "Timestamp: " + time + "      / Temperature : " + temp+"*C " + " / Humidity : "+ humid+"%"
+        console.log(reading);
+        ws.send('noderead'+reading);
+        }
+      else {ws.send('noderead'+"Timestamp: no data in db      / Temperature : no data in db   / Humidity : no data in db  %");}
       });
     } 
     else if (message=="fetch 10 samples") {
@@ -51,13 +55,13 @@ wss.on('connection', ws => {
       db_con.query(db_cmd, function (err, result, fields) {
       if (err) throw err;
       multi_reading = ""
-      for (i = 0; i <rows; i++) {
-      var time = result[0].timestamp;
-      var temp= result[0].temp;
-      var humid = result[0].humid;
-      multi_reading = multi_reading + "(Timestamp: " + time + "      / Temperature : " + temp+"*C " + " / Humidity : "+ humid+"%)"
+      //increment only up to the current size of the sql sb. Otherwise an error is thrown if trying to get propert of empty db.
+      for (var i = 0; i <result.length; i++) {
+      var time = result[i].timestamp;
+      var temp= result[i].temp;
+      var humid = result[i].humid;
+     multi_reading = multi_reading + "(Timestamp: " + time + "      / Temperature : " + temp+"*C " + " / Humidity : "+ humid+"%)"
     }
-      console.log(multi_reading);
       ws.send('nodefetch'+multi_reading);
       });
     } 
