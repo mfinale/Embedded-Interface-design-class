@@ -15,17 +15,18 @@
 	/* Style the header */
 	header {
 	  background-color: #666;
-	  padding: 30px;
+	  padding: 10px;
 	  text-align: center;
-	  font-size: 35px;
+	  font-size: 25px;
 	  color: white;
+	  width: 1200px;
 	}
 
 	/* Create two columns/boxes that floats next to each other */
 	nav {
 	  float: left;
-	  width: 30%;
-	  height: 1000px; 
+	  width: 300px;
+	  height: 500px; 
 	  background: #ccc;
 	  padding: 20px;
 	}
@@ -37,11 +38,11 @@
 	}
 
 	article {
-	  float: left;
+	  float: none;
 	  padding: 20px;
-	  width: 70%;
+	  width: 1200px;
 	  background-color: #f1f1f1;
-	  height: 1000px; 
+	  height: 500px; 
 	  
 	}
 	
@@ -60,18 +61,12 @@
 	/* Style the footer */
 	footer {
 	  background-color: #777;
-	  padding: 50px;
+	  padding: 20px;
 	  text-align: center;
 	  color: white;
+	  width: 1200px;
 	}
 
-	/* Responsive layout - makes the two columns/boxes stack on top of each other instead of next to each other, on small screens */
-	@media (max-width: 600px) {
-	  nav, article {
-		width: 100%;
-		height: auto;
-	  }
-	}
 	
 	
 	
@@ -113,7 +108,21 @@
 			 $("#response_table").find("tr:gt(0)").remove();
 		  };
 		  
+		  //function to hide output paragraph
+		  hide_output = function(){
+			$('#SourceScreen').hide();
+			$('#OutputScreen1').hide();
+			$('#OutputScreen2').hide();
+			$('#OutputScreen3').hide();
+		  };
 		  
+		  show_output = function(){
+			$('#SourceScreen').show();
+			$('#OutputScreen1').show();
+			$('#OutputScreen2').show();
+			$('#OutputScreen3').show();
+		  };
+					
 		  
 		  //function to convert displayed temperature 
 		  convert_temp = function(){
@@ -157,6 +166,8 @@
                 console.log(jQuery.type(message))
 				//if message contains pyread then it is a reply to the "Read from sensor" command
 				if (message.includes("pyread")){
+					show_output();
+					hide_table();
 					$('#SourceScreen').text('Reply from Python app: ');
 					var str = evt.data
 					str = str.replace('pyread','');
@@ -167,20 +178,22 @@
 					$('#OutputScreen1').text(time);
 					$('#OutputScreen2').text(temp);
 					$('#OutputScreen3').text(humidity);
-					hide_table();
 					}
 				else if  (message.includes("pyfetch")){
+					clear_table();
+					hide_output();
 					var str = evt.data
-					str = str.replace('pyfetch','');
+					str = str.replace('pyfetch',',');
 					str = str.replace('[','');
 					str = str.replace(']','');
 					str = str.replace(/\(/g ,'');
+					str = str.replace(/,/g ,'__');
 					var res = str.split(")");
-					console.log(res[0]);
-					console.log(res[1]);
 					var i;
-					for (i = 0; i < res.length; i++) {
-						add_to_table(i,res[i],1)
+					for (i = res.length-1; i >0; i--) {
+						
+						
+						add_to_table(i,res[i-1],1)
 					}
 
 					
@@ -231,6 +244,8 @@
 				$('#OutputScreen2').text(temp);
 				$('#OutputScreen3').text(humidity);
 			};
+			  
+			  
 			  
 			node_ws.onclose = function(e) {
 				log("***Node_js/mySQL Connection Closed***");
@@ -295,8 +310,8 @@
 		   <table id="response_table" style="width:70%"  border="4" >
 			  <tr>
 				<th>ID</th>
-				<th>Node.js</th> 
-				<th>Python/tornado</th>
+				<th>Node.js (Time, Temperature(*C), Humidity (%))</th> 
+				<th>Python/tornado (Time, Temperature(*C), Humidity (%))</th>
 			  </tr>
 		  </table>
 					
