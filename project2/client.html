@@ -25,7 +25,7 @@
 	nav {
 	  float: left;
 	  width: 30%;
-	  height: 500px; /* only for demonstration, should be removed */
+	  height: 1000px; 
 	  background: #ccc;
 	  padding: 20px;
 	}
@@ -41,7 +41,7 @@
 	  padding: 20px;
 	  width: 70%;
 	  background-color: #f1f1f1;
-	  height: 500px; 
+	  height: 1000px; 
 	  
 	}
 	
@@ -97,6 +97,19 @@
 			  cell2.innerHTML = pythondata;
 			  cell3.innerHTML = nodedata;
 			}
+			
+		 //function to hide table
+		  hide_table = function(){
+			$("#response_table").hide();
+		  };
+		  
+		  //function to show table
+		  show_table = function(){
+			$("#response_table").show();
+		  };
+		  
+		  
+		  
 		  
 		  //function to convert displayed temperature 
 		  convert_temp = function(){
@@ -124,7 +137,7 @@
 		  //proceed once web page has loaded
 		  $(document).ready(function () {
 			
-	 
+			hide_table();
 			var ws;
 	 
 	 
@@ -150,6 +163,7 @@
 					$('#OutputScreen1').text(time);
 					$('#OutputScreen2').text(temp);
 					$('#OutputScreen3').text(humidity);
+					hide_table();
 					}
 				else if  (message.includes("pyfetch")){
 					var str = evt.data
@@ -232,6 +246,7 @@
 			
 			test_network_responsiveness = function(){
 				console.log("Requesting 10 database entries from node.js server and python server");
+				show_table();
 				node_ws.send('fetch 10 samples');
 				ws.send('fetch 10 samples');
 				
