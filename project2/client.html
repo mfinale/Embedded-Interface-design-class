@@ -204,10 +204,14 @@
 				
 				else if  (message.includes("pyfetch")){
 					var str = evt.data
-					// get end time for node
+					
+					// get end time for node and display on web page
 					py_end = new Date($.now())
 					var py_diff = py_end - py_start
-					console.log(py_diff)
+					$('#OutputScreen1').text(py_start);
+					$('#OutputScreen2').text(py_end);
+					$('#OutputScreen3').text(py_diff);
+
 					//Parse this info into separate strings and load into table to compare against node.js response
 					str = str.replace('pyfetch',',');
 					str = str.replace('[','');
@@ -282,10 +286,14 @@
 				}
 				else if  (message.includes("nodefetch")){
 					var str = e.data
-					// get end time for node
+					
+					// get end time and time difference for node and display on page
 					node_end = new Date($.now())
 					var node_diff = node_end - node_start
-					console.log(node_diff)
+					$('#OutputScreen1').text(py_start);
+					$('#OutputScreen2').text(py_end);
+					$('#OutputScreen3').text(py_diff);
+
 					//parse node.js reply into separate strings to be entered into table
 					str = str.replace('nodefetch',',');
 					str = str.replace(/\(/g ,'');
@@ -326,7 +334,6 @@
 			test_network_responsiveness = function(){
 				console.log("Requesting 10 database entries from node.js server and python server");
 				clear_table();
-				hide_output();
 				show_table();
 				
 				//send out commands and get start time
