@@ -59,7 +59,6 @@ wss.on('connection', ws => {
         multi_reading = multi_reading + "(Timestamp: " + time + "      / Temperature : " + temp+"*C " + " / Humidity : "+ humid+"%)"
 					}
 
-      console.log(multi_reading);
       ws.send('nodefetch'+multi_reading);
       });
     } 

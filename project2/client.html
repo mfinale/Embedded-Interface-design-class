@@ -93,7 +93,7 @@
 			}
 			
 			//add data to node.js table
-		  add_to_node_table = function (column, nodedata) {
+		  add_to_node_table = function (index, nodedata) {
 			  var table = document.getElementById("node_table");
 				var row = table.insertRow(1);
 			  var cell1 = row.insertCell(0);
@@ -280,7 +280,7 @@
 					var i;
 					for (i = res.length-1; i >0; i--) {
 						
-						add_to_node_table(i,
+						add_to_node_table(i,1)
 						
 					}
 					
