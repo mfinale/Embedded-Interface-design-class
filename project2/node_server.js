@@ -52,13 +52,12 @@ wss.on('connection', ws => {
       if (err) throw err;
       multi_reading = ""
       for (i = 0; i <rows; i++) {
-						
-        var time = result[i].timestamp;
-        var temp= result[i].temp;
-        var humid = result[i].humid;
-        multi_reading = multi_reading + "(Timestamp: " + time + "      / Temperature : " + temp+"*C " + " / Humidity : "+ humid+"%)"
-					}
-
+      var time = result[0].timestamp;
+      var temp= result[0].temp;
+      var humid = result[0].humid;
+      multi_reading = multi_reading + "(Timestamp: " + time + "      / Temperature : " + temp+"*C " + " / Humidity : "+ humid+"%)"
+    }
+      console.log(multi_reading);
       ws.send('nodefetch'+multi_reading);
       });
     } 
