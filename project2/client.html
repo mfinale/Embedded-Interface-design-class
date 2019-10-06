@@ -108,6 +108,10 @@
 			$("#response_table").show();
 		  };
 		  
+		   //function to clear table
+		  clear_table = function(){
+			 $("#response_table").find("tr:gt(0)").remove();
+		  };
 		  
 		  
 		  
@@ -247,6 +251,7 @@
 			test_network_responsiveness = function(){
 				console.log("Requesting 10 database entries from node.js server and python server");
 				show_table();
+				
 				node_ws.send('fetch 10 samples');
 				ws.send('fetch 10 samples');
 				
@@ -267,7 +272,7 @@
 				<button type="button" onclick="read_from_nodejs()">Read last sensordatabase entry from Node.js.</button>
 				<button type="button" onclick="read_from_pythonapp()">Read sensor data from python application.</button>
 				<button type="button" onclick="convert_temp()">Convert Temperature Celsius/Fahrenheit</button>
-				<button type="button" onclick="test_network_responsiveness()">Test network responsiveness</button>
+				<button type="button" onclick="test_network_responsiveness()">Test network responsiveness</button>			
 			</ul>
 		  </nav>
 		  
