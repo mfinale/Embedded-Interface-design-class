@@ -195,19 +195,23 @@
 					$('#OutputScreen3').text(humidity);
 					}
 				//if message contains pyfetch then it contains the last 10 db entries from python
-				//Parse this info and load into table to compare against node.js response
+				
 				else if  (message.includes("pyfetch")){
 					var str = evt.data
+					//Parse this info into separate strings and load into table to compare against node.js response
 					str = str.replace('pyfetch',',');
 					str = str.replace('[','');
 					str = str.replace(']','');
 					str = str.replace(/\(/g ,'');
-					str = str.replace(/,/g ,'__');
+					str = str.replace(',',', ');
 					var res = str.split(")");
 					var i;
 					for (i = res.length-1; i >0; i--) {
-						
-						
+						//add units to string before plotting in tab;e
+						res[i-1]=res[i-1].replace(', ','Timestamp: ')
+						res[i-1]=res[i-1].replace(', ',' Temperature: ')
+						res[i-1]=res[i-1].replace(', ','*C Humidity :')
+						res[i-1]=res[i-1].concat('%')
 						add_to_python_table(i,res[i-1])
 					}
 
@@ -268,6 +272,7 @@
 				}
 				else if  (message.includes("nodefetch")){
 					var str = e.data
+					//parese node.js reply into separate strings to be entered into table
 					str = str.replace('nodefetch',',');
 					str = str.replace(/\(/g ,'');
 					str = str.replace(/,/g ,'');
@@ -302,7 +307,8 @@
 			};
 			
 			//----------------------functions for both node.js and python server-------------------------------
-			
+			//test network function which sends the command to fetch 10 db entries from python/tornado and node.js
+			//also manipulates web page to show tables
 			test_network_responsiveness = function(){
 				console.log("Requesting 10 database entries from node.js server and python server");
 				clear_table();
