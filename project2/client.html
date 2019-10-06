@@ -246,6 +246,7 @@
 					hide_table();
 					$('#SourceScreen').text('Reply from Node.js: ');
 					var str = e.data
+					str = str.replace('noderead','');
 					var res = str.split("/");
 					var time = res[0]
 					var temp = res[1]
