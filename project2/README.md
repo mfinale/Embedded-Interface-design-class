@@ -4,11 +4,11 @@
 ## Installation Instructions
 - Perform installation from project 1
 - Install nvm, node, and npm by performing the following in a terminal:
-	•`curl -o-https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash`
-	•Restart your terminal
-	•`nvm –version`•Should return a version number like 0.34.0
-	•`nvm install node` 
-	•`nvm install 10.16.3`
+-	•`curl -o-https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash`
+-	•Restart your terminal
+-	•`nvm –version`•Should return a version number like 0.34.0
+-	•`nvm install node` 
+-	•`nvm install 10.16.3`
 - Install web socket for node.js by entering `npm install ws`
 - Install tornado for python by entering `pip3 install tornado`
 - clone repo from https://github.com/mfinale/Embedded-Interface-design-class.git
