@@ -46,10 +46,6 @@
 	  
 	}
 	
-	/*add border to table
-		table, th, td {
-		border: 1px solid black;
-		}
 
 	/* Clear floats after the columns */
 	section:after {
@@ -69,10 +65,6 @@
 	}
 
 	
-	
-	
-	
-	
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	
@@ -85,7 +77,7 @@
 		  
 		  
 		  
-		   // log information to  function
+		   // log information to footer function
 		  log = function(data){
 			$("footer").prepend("</br>" +data);
 		  };
@@ -100,7 +92,7 @@
 			  cell2.innerHTML = pythondata;
 			}
 			
-			//add data to node.js table
+		  //add data to node.js table
 		  add_to_node_table = function (index, nodedata) {
 			  var table = document.getElementById("node_table");
 				var row = table.insertRow(1);
@@ -110,26 +102,26 @@
 			  cell2.innerHTML = nodedata;
 			}
 			
-		 //function to hide table
+		 //function to hide tables
 		  hide_table = function(){
 			$("#python_table").hide();
 			$("#node_table").hide();
 			
 		  };
 		  
-		  //function to show table
+		  //function to show tables
 		  show_table = function(){
 			$("#python_table").show();
 			$("#node_table").show();
 		  };
 		  
-		   //function to clear table
+		   //function to clear tables
 		  clear_table = function(){
 			 $("#python_table").find("tr:gt(0)").remove();
 			 $("#node_table").find("tr:gt(0)").remove();
 		  };
 		  
-		  //function to hide output paragraph
+		  //function to hide output paragraphs
 		  hide_output = function(){
 			$('#SourceScreen').hide();
 			$('#OutputScreen1').hide();
@@ -137,7 +129,7 @@
 			$('#OutputScreen3').hide();
 		  };
 		  
-		  //function to show output paragraph
+		  //function to show output paragraphs
 		  show_output = function(){
 			$('#SourceScreen').show();
 			$('#OutputScreen1').show();
@@ -146,7 +138,7 @@
 		  };
 					
 		  
-		  //function to convert displayed temperature 
+		  //function to convert displayed temperature on "OutputScreen2"
 		  convert_temp = function(){
 			var str = $('#OutputScreen2').text();
 			var res = str.split(":");
@@ -187,7 +179,7 @@
 			// Handle incoming websocket message from python application
 			ws.onmessage = function(evt) {
 				console.log("Message Received from tornado: " + evt.data);
-                var message = evt.data
+               			 var message = evt.data
 				//if message contains pyread then it is a reply to the "Read from sensor" command
 				//Parse data and display it on web page
 				if (message.includes("pyread")){
@@ -204,8 +196,7 @@
 					$('#OutputScreen2').text(temp);
 					$('#OutputScreen3').text(humidity);
 					}
-				//if message contains pyfetch then it contains the last 10 db entries from python
-				
+				//if message contains pyfetch then it contains the last 10 db entries from python				
 				else if  (message.includes("pyfetch")){
 					var str = evt.data
 					
@@ -250,7 +241,7 @@
 			  };
 			
 	 
-			// Send command to query sensor data from python application
+			// function for sending command to query sensor data from python application
 			read_from_pythonapp = function(){
 				console.log("Sending command to read last value from python app");
 				ws.send('Read from sensor');
@@ -268,6 +259,7 @@
 				console.log("***Node_js/mySQL Connection Opened**");
 				log("***Node_js/mySQL Connection Opened**");
 			};
+			 // Handle incoming websocket message from node.js server
 			node_ws.onmessage = function(e) {
 				console.log("Received: '" + e.data + "'");
 				var message = e.data
@@ -287,9 +279,9 @@
 					$('#OutputScreen2').text(temp);
 					$('#OutputScreen3').text(humidity);
 				}
+				//if message contains pyfetch then it contains the last 10 db entries from node.js
 				else if  (message.includes("nodefetch")){
-					var str = e.data
-					
+					var str = e.data	
 					// get end time and time difference for node and display on page
 					node_end =  new Date().getTime();	
 					var node_diff = node_end - node_start
@@ -315,15 +307,16 @@
                 
 				
 			  
-			  
+			// Close Node Websocket callback
 			node_ws.onclose = function(e) {
 				log("***Node_js/mySQL Connection Closed***");
 			}
+			// Open Node Websocket callback
 			node_ws.onerror = (error) => {
 				console.log(`WebSocket error: ${error}`);
 			};
 			
-			// Send command to query last entry in sql database via node.js server 
+			//Function to send command to query last entry in sql database via node.js server 
 			read_from_nodejs = function(){
 				console.log("Sending command to read last value from node.js server");
 				node_ws.send('Read one from db');
@@ -339,8 +332,6 @@
 				show_table();
 				
 				//send out commands and get start time
-				
-
 				node_start = new Date().getTime();	
 				node_ws.send('fetch 10 samples');
 				py_start = new Date().getTime();	
