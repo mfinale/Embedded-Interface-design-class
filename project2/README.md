@@ -1,41 +1,35 @@
-# EID Project2: ------ 
+# EID Project2: Tornado and Node.JS servers for an HTML clien
 
 ## Author: Michael Finale
 ## Installation Instructions
+- Perform installation from project 1
+- Install nvm, node, and npm by performing the following in a terminal:
+	•`curl -o-https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash`
+	•Restart your terminal
+	•`nvm –version`•Should return a version number like 0.34.0
+	•`nvm install node` 
+	•`nvm install 10.16.3`
+- Install web socket for node.js by entering `npm install ws`
+- Install tornado for python by entering `pip3 install tornado`
 - clone repo from https://github.com/mfinale/Embedded-Interface-design-class.git
--
+- To start the program, launch the node.js and tornado servers by running `python3 launch.py` 
+- Once the servers are running, use a browser to open `client.html`
+
  
-Install nvm, node, and npm•curl -o-https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash•Restart your terminal•nvm –version•Should return a version number like 0.34.0•nvm install node •This installs the latest node, 12.9.0•nvm install 10.16.3•This installs the stable LTS 10.16.3 node
-
-npm install ws
-pip install tornado
-
-![](https://cdn.pimylifeup.com/wp-content/uploads/2019/05/Raspberry-Pi-Humidity-Sensor-DHT22-Wiring-Schematic.png)
-hhttps://stackoverflow.com/questions/4789837/how-to-terminate-a-python-subprocess-launched-with-shell-truettps://stackoverflow.com/questions/4789837/how-to-terminate-a-python-subprocess-launched-with-shell-true
-https://stackoverflow.com/questions/25905752/close-the-program-using-keyboard-interrupt-in-python
-https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
-
-- Install PyQT5 : 
-`sudo apt-get install qt5-default pyqt5-dev pyqt5-dev-tools`
-`sudo apt-get install qttools5-dev-tools`
-- create a local mySQL database with the following name, user, and password info:
--user="eiduser"
--passwd="Shrek2"  
--database=sensordb
-- Reference https://pimylifeup.com/raspberry-pi-mysql/ if more detailed instructions are needed.
-- navigate to "project1" folder
-- run project1gui.py `python3 project1gui.py`
-
 ## Project Work
 Application developed by Michael Finale.  
 
-## Project Additions
 
+
+## Project Additions/Known Bugs
+ - Retrieval of humid or temperature plots has not been implemented as of 10/6/2019 
+ - Temperature conversion has been implemented for single node.js and python/tornado readings but not as part of the network responsiveness test
 ## References
-- [1]https://www.js-tutorials.com/nodejs-tutorial/simple-websocket-example-with-nodejs/
-- [2]https://groups.google.com/forum/#!msg/python-tornado/Q3VUpFGvuVY/4rC8VtPaBwAJ
-- [3]
-- [4]
-- [5]
-- [6]
-- [7]
+- [1] https://www.js-tutorials.com/nodejs-tutorial/simple-websocket-example-with-nodejs/
+- [2] https://groups.google.com/forum/#!msg/python-tornado/Q3VUpFGvuVY/4rC8VtPaBwAJ
+- [3] https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
+- [4] https://stackoverflow.com/questions/25905752/close-the-program-using-keyboard-interrupt-in-python
+- [5] https://stackoverflow.com/questions/4789837/how-to-terminate-a-python-subprocess-launched-with-shell-truettps://stackoverflow.com/questions/4789837/how-to-terminate-a-python-subprocess-launched-with-shell-true
+- [6] https://www.w3schools.com/nodejs/nodejs_mysql.asp 
+- [7] https://www.pubnub.com/blog/nodejs-websocket-programmingexamples/
+- [8] https://os.mbed.com/cookbook/Websockets-Server  
