@@ -2,7 +2,27 @@
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>DHT22 Sensor</title>
 	
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<META NAME="author" CONTENT="Michael Finale">
+	<META NAME="distribution" CONTENT=" Redistribution, modification or use of this software in source or binary
+ 		forms is permitted as long as the files maintain this copyright. Users are
+ 		permitted to modify this and use it to learn about the field of embedded
+ 		software. Michael Finale and the University of Colorado
+ 		are not liable for any misuse of this material.">
+		
+	<META NAME="copyright" CONTENT="Copyright (C) 2019 by Michael Finale>
+		
+	<META NAME="description" CONTENT="client.html: This html file styles the webpage and establishes a websocket to the python/tornado server at localhost:8888 
+		and a second websocket to the node.js server at localhost:8080.
+		The file contains 4 buttons:
+		-a button to retrieve the current reading from the DHT22 Sensor
+		-a button to retrieve the last temperature and humidity reading from the SQL database that is populated by the python/tornado application. This transaction is done via node.js
+		-a button the converts the temperature readings between Fahrenheit and Celsius for the above two functions.
+		-a button that plots the last 10 SQL database entries via the node.js server and python/tornado server. It also 
+		takes a timestamp of the start, end, and duration (in milliseconds) of each transaction.">
+	
+	<META NAME="viewport" content="width=device-width, initial-scale=1">
+									   
+									   
 	<style>
 	* {
 	  box-sizing: border-box;
@@ -62,10 +82,10 @@
 	  color: white;
 	  width: 1200px;
 	  height: 80px
-	}
-
-	
+	}	
 	</style>
+		     
+		     
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	
 	<script>
