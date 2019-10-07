@@ -77,6 +77,14 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	
 	<script>
+		  // script globals
+			var node_start; 
+			var node_end ; 
+			var py_start ; 
+			var py_end ; 
+		  
+		  
+		  
 		   // log information to  function
 		  log = function(data){
 			$("footer").prepend("</br>" +data);
@@ -166,12 +174,9 @@
 			
 			
 			hide_table();
-			//variables shared between functions
+			
 			var ws;
-			var node_start 
-			var node_end  
-			var py_start  
-			var py_end  
+			
 			
 	 
 			//---------------------------python app socket handler--------------------------------
@@ -183,7 +188,6 @@
 			ws.onmessage = function(evt) {
 				console.log("Message Received from tornado: " + evt.data);
                 var message = evt.data
-                console.log(jQuery.type(message))
 				//if message contains pyread then it is a reply to the "Read from sensor" command
 				//Parse data and display it on web page
 				if (message.includes("pyread")){
@@ -206,13 +210,12 @@
 					var str = evt.data
 					
 					// get end time for node and display on web page
-					py_end = new Date($.now())
-					var py_diff = py_end - py_start
-					$('#OutputScreen1').text(py_start);
-					$('#OutputScreen2').text(py_end);
-					$('#OutputScreen3').text(py_diff);
+					py_end = new Date().getTime();					
+					var py_diff = py_end - py_start					
+					$('#OutputScreen1').text(' Python Elapsed Time (ms): '  + py_diff + ' Python Start Timestamp: ' +py_start+  ' Python End Timestamp: ' + py_end);
 
-					//Parse this info into separate strings and load into table to compare against node.js response
+
+					//Parse this data into separate strings and load into table to compare against node.js response
 					str = str.replace('pyfetch',',');
 					str = str.replace('[','');
 					str = str.replace(']','');
@@ -288,19 +291,18 @@
 					var str = e.data
 					
 					// get end time and time difference for node and display on page
-					node_end = new Date($.now())
+					node_end =  new Date().getTime();	
 					var node_diff = node_end - node_start
-					$('#OutputScreen1').text(py_start);
-					$('#OutputScreen2').text(py_end);
-					$('#OutputScreen3').text(py_diff);
+					$('#OutputScreen3').text(' Node Elapsed Time (ms): '  + node_diff + ' Node Start Timestamp: ' +node_start+  ' Node End Timestamp: ' + node_end);
+					$('#OutputScreen2').text('');
+					$('#SourceScreen').text('');
 
 					//parse node.js reply into separate strings to be entered into table
 					str = str.replace('nodefetch',',');
 					str = str.replace(/\(/g ,'');
 					str = str.replace(/,/g ,'');
 					str = str.replace(/\//g ,'');
-					var res = str.split(")");
-					console.log(res);						
+					var res = str.split(")");					
 					var i;
 					for (i = res.length-1; i >0; i--) {
 						
@@ -337,9 +339,11 @@
 				show_table();
 				
 				//send out commands and get start time
-				node_start = new Date($.now())
+				
+
+				node_start = new Date().getTime();	
 				node_ws.send('fetch 10 samples');
-				py_start = new Date($.now()) 
+				py_start = new Date().getTime();	
  				ws.send('fetch 10 samples');
 
 			};
