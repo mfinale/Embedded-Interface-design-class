@@ -1,14 +1,28 @@
+  
+#!/usr/bin/env python
+"""launch.py: This script launches the node.js server and 
+python DHT22_application, which includes the sensor QT gui and tornado websocket server.
+This script must be ran from the command line before opening the client.html file.
+The script will terminate both processes upon entering CTRL+C into the
+terminal.
+"""
+
+
 import os
 import sys
 import subprocess
 import time
 import signal
-#This script launches the node.js server and p
-#python DHT22_application (which includes the sensor gui and t
-#tornado websocket server.
+
+__author__ = "Michael Finale"
+__copyright__ = "Copyright (C) 2019 by Bruce Montgomery"
 #
-#The script will terminate both processes upon enterin CTRL+C into the
-#terminal.
+# Redistribution, modification or use of this software in source or binary
+# forms is permitted as long as the files maintain this copyright. Users are
+# permitted to modify this and use it to learn about the field of embedded
+# software. Michael Finale and the University of Colorado
+# are not liable for any misuse of this material.
+#
 
 
 
