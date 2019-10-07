@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """DHT22_application.py:
 DHT22 Temperature and Humidity interface for project 1 of Embedded Interface Design Course.
-This python application that runs a PyQt5 which interfaces with a DHT22 sensor with
+This python application runs a PyQt5 dialog which interfaces with a DHT22 sensor with
 the following functions:
 - a button to read the current temperature (in Celsius) and humidity with corresponding timestamp
 - periodic readings from the DHT22 sensor every 15 seconds for up to 30 readings
@@ -11,8 +11,8 @@ and humidity
 - plotting of the last 10 temperature readings
 - plotting of the last 10 humidity readings
 Project 2 adds the following:
--tornado websocket server and handler that responds to a html client
--the tornado server is capable of sending sensor data from a sample as well
+-tornado websocket server and handler that connects to a html client
+-the tornado server is capable of sending sensor data from a singlee sample as well
 as the last 10 sensor readings that are currently stored in the mySQL database mentioned above.
 
 
@@ -60,7 +60,7 @@ mycursor.execute("CREATE TABLE sensordata ( timestamp VARCHAR(30),temp float(10,
 
 #Websocket Handler class that is used to create a tornado websocket server.
 class WSHandler(tornado.websocket.WebSocketHandler):
-      #get timestamp, temperature in celsius, and humidity for readings on demand and then print to label
+    #function for tornado server to send a sensor reading to the client
     def WS_get_instant_sensor_data(self):
         try:
             humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
@@ -73,7 +73,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 return ("Failed to retrieve sensor data. Check DHT22 sensor connection.")
         except:
             return ("Sensor Error")
-
+    #function for tornado sever to send last 10 entries in SQL db to the client
     def retrieve_data(self, rows):
         mycursor.execute("SELECT * FROM \
         ( SELECT * FROM sensordata ORDER BY timestamp DESC LIMIT "+str(rows)+ " )\
@@ -130,7 +130,7 @@ class Ui_Dialog(object):
     max_temp = 300  #default temperature limit for alarm
 
     def setupUi(self, Dialog):
-        Dialog.setObjectName("Dh22 Sensor Interface")
+        Dialog.setObjectName("DHT22 Sensor Interface")
         Dialog.resize(941, 490)
         self.read_data_out = QtWidgets.QLabel(Dialog)
         self.read_data_out.setGeometry(QtCore.QRect(60, 370, 811, 41))
@@ -185,6 +185,7 @@ class Ui_Dialog(object):
         self.read_timer.start(15000)
 
         #setup timer for starting and stopping tornado ioloop
+        #This is to avoid having to run two conflicting event loops: tornado and pyQT
         self.tornado_timer = QtCore.QTimer()
         self.tornado_timer.setSingleShot(False)
         self.tornado_timer.timeout.connect(self.update_tornado)
