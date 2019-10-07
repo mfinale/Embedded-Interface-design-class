@@ -1,4 +1,4 @@
-# EID Project2: Tornado and Node.JS servers for an HTML client
+# EID Project2: Tornado and Node.JS servers for a HTML client
 
 ## Author: Michael Finale
 ## Installation Instructions
