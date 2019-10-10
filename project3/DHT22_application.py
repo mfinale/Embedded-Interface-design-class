@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """project1gui.py:
 DHT22 Temperature and Humidity interface for project 1 of Embedded Interface Design Course.
-This python application that runs a PyQt5 which interfaces with a DHT22 sensor with 
+This python application that runs a PyQt5 which interfaces with a DHT22 sensor with
 the following functions:
 - a button to read the current temperature (in Celsius) and humidity with corresponding timestamp
 - periodic readings from the DHT22 sensor every 15 seconds for up to 30 readings
-- alarm system that is configured by setting the upper limits for the temperature 
+- alarm system that is configured by setting the upper limits for the temperature
 and humidity
 - plotting of the last 10 temperature readings
 - plotting of the last 10 humidity readings
@@ -19,6 +19,7 @@ import Adafruit_DHT
 import datetime
 import time
 import matplotlib.pyplot as plt
+import json
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 __author__ = "Michael Finale"
@@ -51,11 +52,11 @@ class Ui_Dialog(object):
 
     #variables passed between functions within class:
     read_count = 0  #counter for periodic sensor readings
-    max_humid = 300 #default humidity limit for alarm 
-    max_temp = 300  #default temperature limit for alarm 
+    max_humid = 300 #default humidity limit for alarm
+    max_temp = 300  #default temperature limit for alarm
 
     def setupUi(self, Dialog):
-        Dialog.setObjectName("Dh22 Sensor Interface")
+        Dialog.setObjectName("DHT22 Sensor Interface")
         Dialog.resize(941, 490)
         self.read_data_out = QtWidgets.QLabel(Dialog)
         self.read_data_out.setGeometry(QtCore.QRect(60, 370, 811, 41))
@@ -123,7 +124,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dh22 Sensor Interface"))
+        Dialog.setWindowTitle(_translate("Dialog", "DHT22 Sensor Interface"))
         self.read_data_out.setText(_translate("Dialog", "Sensor data"))
         self.status_out.setText(_translate("Dialog", "Sensor Status"))
         self.read_data_btn.setText(_translate("Dialog", "Read Temperature and Humidity"))
@@ -139,6 +140,7 @@ class Ui_Dialog(object):
 
 
     #get timestamp, temperature in celsius, and humidity for readings on demand and then print to label
+    # project 3 addition: also packages the data into JSON and sends to a MQTT Broker
     def get_instant_sensor_data(self):
         try:
             humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
@@ -148,6 +150,9 @@ class Ui_Dialog(object):
                 humidity = "{0:0.2f}".format(humidity)
                 time = str(datetime.datetime.now())
                 self.read_data_out.setText(time + "       Temperature : " + temperature+"*C " + "  Humidity : "+ humidity+"%")
+                data= {"Label":"sensor_read", "Timestamp":time,"Temperature":temperature, "Humidity": humidity}
+                JSON_data = json.dumps(data)
+                #add MQTT push
             else:
                 self.read_data_out.setText("Failed to retrieve sensor data. Check DHT22 sensor connection.")
         except:
@@ -167,7 +172,8 @@ class Ui_Dialog(object):
         self.read_count = self.read_count +1
         print("sensor reading #"+str(self.read_count))
 
-    #called by store_sensor_data. Return sensor data and status, and print to label.
+    #called by store_sensor_data every 15 seconds. Return sensor data and status, and print to label.
+    # project 3 addition: also packages the data into JSON and sends to a MQTT Broker
     def get_sensor_data(self):
         try:
             humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
@@ -177,6 +183,9 @@ class Ui_Dialog(object):
                 humidity = "{0:0.2f}".format(humidity)
                 time = str(datetime.datetime.now())
                 self.status_out.setText(time + "       Temperature : " + temperature+"*C " + "  Humidity : "+ humidity+"%")
+                data= {"Label":"sensor_read", "Timestamp":time,"Temperature":temperature, "Humidity": humidity}
+                JSON_data = json.dumps(data)
+                #add MQTT push
                 return (time, temperature, humidity)
             else:
                 self.status_out.setText("Failed to retrieve sensor data. Check DHT22 sensor connection.")
@@ -195,20 +204,26 @@ class Ui_Dialog(object):
         except:
             return
 
-    # check temperature and humidity readings 
-    # write an alarm message if readings exceed limits
+    # check temperature and humidity readings
+    # project 3 addition: write an alarm message if readings exceed limits, form a JSON alert message and send to a MQTT broker
     def alarm(self, chk_temp, chk_humid):
+        times = str(datetime.datetime.now())
+        data= {"Label":"Alert", "Timestamp":times,"Temperature Alert Level":chk_temp, "Temperature Trigger Level": self.max_temp, "Humidity Alert Level": chk_humid, "Humidity Trigger Level":self.max_humid}
+        JSON_data = json.dumps(data)
         if chk_temp > self.max_temp:
             self.alarm_message.setText("<font color='red'>Warning: High Temp</font>")
+            #add MQTT push
         if chk_humid > self.max_humid :
             self.alarm_message.setText("<font color='red'>Warning: High Humidity</font>")
+            #add MQTT push
         if chk_humid > self.max_humid and chk_temp > self.max_temp :
             self.alarm_message.setText("<font color='red'>Warning: High Temp and Humidty</font>")
+            #add MQTT push
         elif chk_humid < self.max_humid and chk_temp < self.max_temp :
             self.alarm_message.setText("<font color='green'>Temp and Humidty OK</font>")
 
 
-    #get last desired number of readings of humid data 
+    #get last desired number of readings of humid data
     #from sql db. Number of readings specified by "rows"
     def retrieve_humid_data(self, rows):
         mycursor.execute("SELECT * FROM \
@@ -216,7 +231,7 @@ class Ui_Dialog(object):
         sub ORDER by timestamp ASC")
         return mycursor.fetchall()
 
-    #get last desired number readings of temp data 
+    #get last desired number readings of temp data
     #from sql db. Number of readings specified by "rows"
     def retrieve_temp_data(self, rows):
         mycursor.execute("SELECT * FROM \
