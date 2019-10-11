@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import json
 from PyQt5 import QtCore, QtGui, QtWidgets
 import paho.mqtt.client as mqtt
-
+import ssl
 __author__ = "Michael Finale"
 __copyright__ = "Copyright (C) 2019 by Michael Finale"
 #
@@ -54,19 +54,44 @@ def on_connect(client, userdata, flags, rc):
     else:
         print("MQTT clientBad connection Returned code=",rc)
 
-#start the MQTT connection to the broker
-broker="broker.mqttdashboard.com"
+
+#define credentials for MQTT connection to aws
+IoT_protocol_name = "x-amzn-mqtt-ca"
+aws_iot_endpoint = "a1i8vja12d7doa-ats.iot.us-east-1.amazonaws.com"
+url = "https://{}".format(aws_iot_endpoint)
+ca = "/home/pi/Desktop/aws_files/root-ca.pem"
+cert = "/home/pi/Desktop/aws_files/1d28cc129f-certificate.pem.crt"
+private = "/home/pi/Desktop/aws_files/1d28cc129f-private.pem.key"
+
+# setup ssl for connection
+# code borrowed from:
+#https://aws.amazon.com/blogs/iot/how-to-implement-mqtt-with-tls-client-authentication-on-port-443-from-client-devices-python/
+def ssl_alpn():
+    try:
+        ssl_context = ssl.create_default_context()
+        ssl_context.set_alpn_protocols([IoT_protocol_name])
+        ssl_context.load_verify_locations(cafile=ca)
+        ssl_context.load_cert_chain(certfile=cert, keyfile=private)
+        return  ssl_context
+    except Exception as e:
+        print("exception ssl_alpn()")
+        raise e
+
+#start MQTT connection with ssl credentials
 client =mqtt.Client("DHT22_MQTT_Client")
+ssl_context= ssl_alpn()
+client.tls_set_context(context=ssl_context)
 client.on_connect=on_connect
-client.connect(broker)
+client.connect(aws_iot_endpoint, port=443)
 time.sleep(4)
 client.loop_start()
 client.loop_stop()
 
+
 #function to publish a MQTT message
 def send_MQTT_data(message,client_id):
     client_id.loop_start()
-    client_id.publish("testtopic/4",message,qos=2)
+    client_id.publish("sensor",message,qos=1)
     client_id.loop_stop()
 
 
