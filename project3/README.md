@@ -3,6 +3,7 @@
 ## Installation Instructions
 - Perform installation from project 1
 - install paho-mqtt:pip3 install paho-mqtt
+https://docs.aws.amazon.com/iot/latest/developerguide/iot-moisture-tutorial.html
 
  
 ## Project Work
