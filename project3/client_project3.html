@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>DHT22 Sensor</title>
+	
+	<META NAME="author" CONTENT="Michael Finale">
+	<META NAME="distribution" CONTENT=" Redistribution, modification or use of this software in source or binary
+ 		forms is permitted as long as the files maintain this copyright. Users are
+ 		permitted to modify this and use it to learn about the field of embedded
+ 		software. Michael Finale and the University of Colorado
+ 		are not liable for any misuse of this material.">
+		
+	<META NAME="copyright" CONTENT="Copyright (C) 2019 by Michael Finale">
+		
+	<META NAME="description" CONTENT="client.html: This html file styles the webpage and establishes a websocket to the python/tornado server at localhost:8888 
+		and a second websocket to the node.js server at localhost:8080.
+		The file contains 4 buttons:
+		-a button to retrieve the current reading from the DHT22 Sensor
+		-a button to retrieve the last temperature and humidity reading from the SQL database that is populated by the python/tornado application. This transaction is done via node.js
+		-a button the converts the temperature readings between Fahrenheit and Celsius for the above two functions.
+		-a button that plots the last 10 SQL database entries via the node.js server and python/tornado server. It also 
+		takes a timestamp of the start, end, and duration (in milliseconds) of each transaction. 
+		The launch.py application must be started before running this webpage.
+		The status of the node.js and tornado server are displayed at the footer.">
+	
+	<META NAME="viewport" content="width=device-width, initial-scale=1">
+									   
+									   
+	<style>
+	* {
+	  box-sizing: border-box;
+	}
+
+	body {
+	  font-family: Arial, Helvetica, sans-serif;
+	}
+
+	/* Style the header */
+	header {
+	  background-color: #666;
+	  padding: 10px;
+	  text-align: center;
+	  font-size: 25px;
+	  color: white;
+	  width: 1200px;
+	}
+
+	/* Create two columns/boxes that floats next to each other */
+	nav {
+	  float: left;
+	  width: 300px;
+	  height: 700px; 
+	  background: #ccc;
+	  padding: 20px;
+	}
+
+	/* Style the list inside the menu */
+	nav ul {
+	  list-style-type: none;
+	  padding: 0;
+	}
+
+	article {
+	  float: none;
+	  padding: 20px;
+	  width: 1200px;
+	  background-color: #f1f1f1;
+	  height: 700px; 
+	  
+	}
+	
+
+	/* Clear floats after the columns */
+	section:after {
+	  content: "";
+	  display: table;
+	  clear: both;
+	}
+
+	/* Style the footer */
+	footer {
+	  background-color: #777;
+	  padding: 20px;
+	  text-align: center;
+	  color: white;
+	  width: 1200px;
+	  height: 80px
+	}	
+	</style>
+		     
+		     
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://sdk.amazonaws.com/js/aws-sdk-2.553.0.min.js"></script>
+	
+	<script>
+		  // script globals
+			var node_start; 
+			var node_end ; 
+			var py_start ; 
+			var py_end ; 
+		  
+		  
+		  
+		   // log information to footer function
+		  log = function(data){
+			$("footer").prepend("</br>" +data);
+		  };
+		  
+		  //add data to python/tornado table
+		  add_to_python_table = function (index, pythondata) {
+			  var table = document.getElementById("python_table");
+			  var row = table.insertRow(1);
+			  var cell1 = row.insertCell(0);
+			  var cell2 = row.insertCell(1);		  
+			  cell1.innerHTML = index;
+			  cell2.innerHTML = pythondata;
+			}
+			
+		  //add data to node.js table
+		  add_to_node_table = function (index, nodedata) {
+			  var table = document.getElementById("node_table");
+				var row = table.insertRow(1);
+			  var cell1 = row.insertCell(0);
+			  var cell2 = row.insertCell(1);		  
+			  cell1.innerHTML = index;
+			  cell2.innerHTML = nodedata;
+			}
+			
+		 //function to hide tables
+		  hide_table = function(){
+			$("#python_table").hide();
+			$("#node_table").hide();
+			
+		  };
+		  
+		  //function to show tables
+		  show_table = function(){
+			$("#python_table").show();
+			$("#node_table").show();
+		  };
+		  
+		   //function to clear tables
+		  clear_table = function(){
+			 $("#python_table").find("tr:gt(0)").remove();
+			 $("#node_table").find("tr:gt(0)").remove();
+		  };
+		  
+		  //function to hide output paragraphs
+		  hide_output = function(){
+			$('#SourceScreen').hide();
+			$('#OutputScreen1').hide();
+			$('#OutputScreen2').hide();
+			$('#OutputScreen3').hide();
+		  };
+		  
+		  //function to show output paragraphs
+		  show_output = function(){
+			$('#SourceScreen').show();
+			$('#OutputScreen1').show();
+			$('#OutputScreen2').show();
+			$('#OutputScreen3').show();
+		  };
+					
+		  
+		  //function to convert displayed temperature on "OutputScreen2"
+		  convert_temp = function(){
+			var str = $('#OutputScreen2').text();
+			var res = str.split(":");
+			var temp = res[1]
+			var n = temp.search("C")
+			if (n >1){
+				temp = temp.split("*")[0] 
+				temp = ((temp*(9/5))+32)
+				temp = temp.toFixed(2)
+				temp = 'Temperature : '+ temp+ '*F'
+			}
+			else if (n<1){
+				temp = temp.split("*")[0] 
+				temp = (temp-32)*(5/9)
+				temp= temp.toFixed(2)
+				temp = 'Temperature : '+ temp +'*C'
+			}
+			$('#OutputScreen2').text(temp);
+		  };
+		  
+
+		  // Initialize the Amazon Cognito credentials provider
+			AWS.config.region = 'us-east-1'; 
+			AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: 'us-east-1:dce73a31-04e9-4eee-995a-b52acfcfa35d'});
+		  //proceed once web page has loaded
+		  $(document).ready(function () {
+			
+			
+			hide_table();
+			
+			
+			
+
+			
+			//-----------------------------------functions for AWS SQS-----------------------------------------
+			
+			
+			// Create an SQS service object
+			var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+			var queueURL = "https://sqs.us-east-1.amazonaws.com/374381767834/Sensordata.fifo";
+			
+			var params = {
+			 AttributeNames: [
+				"SentTimestamp"
+			 ],
+			 MaxNumberOfMessages: 10,
+			 MessageAttributeNames: [
+				"All"
+			 ],
+			 QueueUrl: queueURL,
+			 VisibilityTimeout: 0,
+			 WaitTimeSeconds: 0
+			};
+			
+			// This function retrieves and deletes a single message from the SQS queue
+			get_single_sqs_message = function () {
+				sqs.receiveMessage(params, function(err, data) {
+				  if (err) {console.log("Receive Error", err);} 
+				  else if (data.Messages) {
+					console.log(data.Messages[0].Body)
+					var deleteParams = {
+					  QueueUrl: queueURL,
+					  ReceiptHandle: data.Messages[0].ReceiptHandle
+					};
+					/*sqs.deleteMessage(deleteParams, function(err, data) {
+					  if (err) {
+						console.log("Delete Error", err);
+					  } else {
+						console.log("Message Deleted", data);
+					  }
+					});*/
+				  }
+				}); 
+			}
+			
+	   });
+	</script>
+	</head>
+	
+	<body>
+		<header>
+		  <h2>DHT22 Sensor Web Interface</h2>
+		</header>
+
+		<section>
+		  <nav>
+			<ul>
+				<button type="button" onclick="get_single_sqs_message()">Get a single SQS record.</button>
+				<button type="button" onclick="">Get ALL SQS records.</button>		
+			</ul>
+		  </nav>
+		  
+		 <article>
+			<h1>Output</h1>
+			<div id="SourceScreen">
+			<p></p>
+			</div>
+			<div id="OutputScreen1">
+			<p>Results of each button click will appear here.</p>
+			</div>
+			<div id="OutputScreen2">
+			<p></p>
+			</div>
+			<div id="OutputScreen3">
+			<p></p>
+			</div>
+				
+		    
+		   <table id="python_table" style="width:70%"  border="4" >
+			  <tr>
+				<th>ID</th>
+				<th>Python/tornado</th> 
+			  </tr>
+		  </table>
+		  <table id="node_table" style="width:70%"  border="4" >
+			  <tr>
+				<th>ID</th>
+				<th>Node.js</th> 
+			  </tr>
+		  </table>
+		  </article>
+		  
+		  
+		  
+		  
+		  
+		</section>
+
+		<footer>
+		  <p>- status -</p>
+		</footer>
+
+
+	</body>
+
+</html>
