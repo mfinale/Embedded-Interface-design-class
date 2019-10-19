@@ -21,16 +21,17 @@ def lambda_handler(event, context):
         sns.publish(
             TopicArn="arn:aws:sns:us-east-1:374381767834:sensor_sns",
             Subject="Sensor Alert",
-            Message=str(event)
+            Message=json.dumps(event)
             )
         print ('Sent a message to an Amazon SNS topic.')
     elif (event['Label']=="sensor_read"):
         sqs_queue_url = 'https://sqs.us-east-1.amazonaws.com/374381767834/Sensordata.fifo'
         sqs_client = boto3.client('sqs')
-        msg_body = str(event)
+        msg_body =  json.dumps(event)
         msg_id = "sensorreadgroupid"
         msg = sqs_client.send_message(QueueUrl=sqs_queue_url, MessageBody=msg_body,  MessageGroupId= msg_id)
         print("Timestamp = " + str(event['Timestamp']))
         print("Temperature = " + str(event['Temperature']))
         print("Humidity = " + str(event['Humidity']))
-        print ('Sent a message to an Amazon SQS queue.')   
+        print ('Sent a message to an Amazon SQS queue.')
+    
