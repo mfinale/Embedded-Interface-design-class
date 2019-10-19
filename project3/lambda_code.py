@@ -1,14 +1,15 @@
 import json
-#from __future__ import print_function
+from botocore.exceptions import ClientError
 import urllib
 import boto3
-
+import logging
 
 print('Loading function')
 
 
+
+
 def lambda_handler(event, context):
-    #print("Received event: " + json.dumps(event, indent=2))
     print("Label = " + event['Label'])
     if (event['Label']=="Alert"):
         print("Timestamp = " + str(event['Timestamp']))
@@ -24,6 +25,12 @@ def lambda_handler(event, context):
             )
         print ('Sent a message to an Amazon SNS topic.')
     elif (event['Label']=="sensor_read"):
+        sqs_queue_url = 'https://sqs.us-east-1.amazonaws.com/374381767834/Sensordata.fifo'
+        sqs_client = boto3.client('sqs')
+        msg_body = str(event)
+        msg_id = "sensorreadgroupid"
+        msg = sqs_client.send_message(QueueUrl=sqs_queue_url, MessageBody=msg_body,  MessageGroupId= msg_id)
         print("Timestamp = " + str(event['Timestamp']))
         print("Temperature = " + str(event['Temperature']))
         print("Humidity = " + str(event['Humidity']))
+        print ('Sent a message to an Amazon SQS queue.')   
