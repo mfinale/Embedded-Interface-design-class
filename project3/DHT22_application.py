@@ -258,14 +258,14 @@ class Ui_Dialog(object):
         times = str(datetime.datetime.now())
         data= {"Label":"Alert", "Timestamp":times,"Temperature Alert Level":chk_temp, "Temperature Trigger Level": self.max_temp, "Humidity Alert Level": chk_humid, "Humidity Trigger Level":self.max_humid}
         JSON_data = json.dumps(data)
-        if chk_temp > self.max_temp:
+        if chk_humid > self.max_humid and chk_temp > self.max_temp :
+            self.alarm_message.setText("<font color='red'>Warning: High Temp and Humidty</font>")
+            send_MQTT_data(JSON_data,client)
+        elif chk_temp > self.max_temp:
             self.alarm_message.setText("<font color='red'>Warning: High Temp</font>")
             send_MQTT_data(JSON_data,client)
         elif chk_humid > self.max_humid :
             self.alarm_message.setText("<font color='red'>Warning: High Humidity</font>")
-            send_MQTT_data(JSON_data,client)
-        elif chk_humid > self.max_humid and chk_temp > self.max_temp :
-            self.alarm_message.setText("<font color='red'>Warning: High Temp and Humidty</font>")
             send_MQTT_data(JSON_data,client)
         elif chk_humid < self.max_humid and chk_temp < self.max_temp :
             self.alarm_message.setText("<font color='green'>Temp and Humidty OK</font>")
