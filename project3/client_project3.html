@@ -92,12 +92,7 @@
 	<script src="https://sdk.amazonaws.com/js/aws-sdk-2.553.0.min.js"></script>
 	
 	<script>
-		  // script globals
-			var node_start; 
-			var node_end ; 
-			var py_start ; 
-			var py_end ; 
-		  
+
 		  
 		  
 		   // log information to footer function
@@ -106,42 +101,31 @@
 		  };
 		  
 		  //add data to python/tornado table
-		  add_to_python_table = function (index, pythondata) {
-			  var table = document.getElementById("python_table");
+		  add_to_sqs_table = function (Timestamp, Temperature, Humidity) {
+			  var table = document.getElementById("SQS_table");
 			  var row = table.insertRow(1);
 			  var cell1 = row.insertCell(0);
-			  var cell2 = row.insertCell(1);		  
-			  cell1.innerHTML = index;
-			  cell2.innerHTML = pythondata;
-			}
-			
-		  //add data to node.js table
-		  add_to_node_table = function (index, nodedata) {
-			  var table = document.getElementById("node_table");
-				var row = table.insertRow(1);
-			  var cell1 = row.insertCell(0);
-			  var cell2 = row.insertCell(1);		  
-			  cell1.innerHTML = index;
-			  cell2.innerHTML = nodedata;
+			  var cell2 = row.insertCell(1);
+			  var cell3 = row.insertCell(2);				  
+			  cell1.innerHTML = Timestamp;
+			  cell2.innerHTML = Temperature;
+			  cell3.innerHTML = Humidity;
 			}
 			
 		 //function to hide tables
 		  hide_table = function(){
-			$("#python_table").hide();
-			$("#node_table").hide();
+			$("#SQS_table").hide();
 			
 		  };
 		  
 		  //function to show tables
 		  show_table = function(){
-			$("#python_table").show();
-			$("#node_table").show();
+			$("#SQS_table").show();
 		  };
 		  
 		   //function to clear tables
 		  clear_table = function(){
-			 $("#python_table").find("tr:gt(0)").remove();
-			 $("#node_table").find("tr:gt(0)").remove();
+			 $("#SQS_table").find("tr:gt(0)").remove();
 		  };
 		  
 		  //function to hide output paragraphs
@@ -190,11 +174,10 @@
 		  $(document).ready(function () {
 			
 			
-			hide_table();
+			hide_output();
+			show_table();
 			
-			
-			
-
+		
 			
 			//-----------------------------------functions for AWS SQS-----------------------------------------
 			
@@ -216,23 +199,36 @@
 			 WaitTimeSeconds: 0
 			};
 			
-			// This function retrieves and deletes a single message from the SQS queue
+			
+			
+			// This function retrieves and then deletes a single message from the SQS queue
 			get_single_sqs_message = function () {
 				sqs.receiveMessage(params, function(err, data) {
 				  if (err) {console.log("Receive Error", err);} 
 				  else if (data.Messages) {
-					console.log(data.Messages[0].Body)
-					var deleteParams = {
-					  QueueUrl: queueURL,
-					  ReceiptHandle: data.Messages[0].ReceiptHandle
-					};
-					/*sqs.deleteMessage(deleteParams, function(err, data) {
+					//try and retrieve message. Catch and handle type error if there is no data
+					try {
+						console.log(data.Messages[0].Body)
+						var obj = JSON.parse(data.Messages[0].Body)
+						console.log(obj)
+						add_to_sqs_table(obj["Timestamp"],obj["Temperature"], obj["Humidity"])
+						
+						var deleteParams = {
+						  QueueUrl: queueURL,
+						  ReceiptHandle: data.Messages[0].ReceiptHandle
+						  };
+					}					
+					catch(err) {
+					    console.log(err.name, "Body of message may be empty.");
+					}					
+					sqs.deleteMessage(deleteParams, function(err, data) {
 					  if (err) {
 						console.log("Delete Error", err);
-					  } else {
+					  } 
+					  else {
 						console.log("Message Deleted", data);
 					  }
-					});*/
+					});
 				  }
 				}); 
 			}
@@ -270,16 +266,11 @@
 			</div>
 				
 		    
-		   <table id="python_table" style="width:70%"  border="4" >
+		   <table id="SQS_table" style="width:70%"  border="4" >
 			  <tr>
-				<th>ID</th>
-				<th>Python/tornado</th> 
-			  </tr>
-		  </table>
-		  <table id="node_table" style="width:70%"  border="4" >
-			  <tr>
-				<th>ID</th>
-				<th>Node.js</th> 
+				<th>Timestamp</th>
+				<th>Temperature</th>
+				<th>Humidity</th> 				
 			  </tr>
 		  </table>
 		  </article>
