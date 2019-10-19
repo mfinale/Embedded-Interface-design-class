@@ -195,7 +195,7 @@
 				"All"
 			 ],
 			 QueueUrl: queueURL,
-			 VisibilityTimeout: 0,
+			 VisibilityTimeout: 1,
 			 WaitTimeSeconds: 0
 			};
 			
@@ -206,28 +206,31 @@
 				sqs.receiveMessage(params, function(err, data) {
 				  if (err) {console.log("Receive Error", err);} 
 				  else if (data.Messages) {
+				  
 					//try and retrieve message. Catch and handle type error if there is no data
 					try {
+					
+						var deleteParams = {
+						  QueueUrl: queueURL,
+						  ReceiptHandle: data.Messages[0].ReceiptHandle
+						  };
+					
+					
 						console.log(data.Messages[0].Body)
 						var obj = JSON.parse(data.Messages[0].Body)
 						console.log(obj)
 						add_to_sqs_table(obj["Timestamp"],obj["Temperature"], obj["Humidity"])
 						
-						var deleteParams = {
-						  QueueUrl: queueURL,
-						  ReceiptHandle: data.Messages[0].ReceiptHandle
-						  };
+					
 					}					
 					catch(err) {
 					    console.log(err.name, "Body of message may be empty.");
-					}					
+						log ("No data. Body of received message may be empty.");
+					}	
+					
 					sqs.deleteMessage(deleteParams, function(err, data) {
-					  if (err) {
-						console.log("Delete Error", err);
-					  } 
-					  else {
-						console.log("Message Deleted", data);
-					  }
+					  if (err) {console.log("Delete Error", err);} 
+					  else {console.log("Message Deleted", data);}
 					});
 				  }
 				}); 
