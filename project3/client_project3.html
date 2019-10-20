@@ -237,16 +237,14 @@
 					    console.log(err.name, "Body of message may be empty.");
 						log ("No data. Body of received message may be empty.");
 					}	
-					
 					sqs.deleteMessage(deleteParams, function(err, data) {
 					  if (err) {console.log("Delete Error", err);} 
-					  else {
-							console.log("Record Deleted", data);
-							get_number_of_records();	  
-					  }
+					  else {console.log("Record Deleted", data);}
 					});
+					
 				  }
 				}); 
+				
 			}
 			
 			
@@ -276,8 +274,7 @@
 				/*	sqs.deleteMessage(deleteParams, function(err, data) {
 					  if (err) {console.log("Delete Error", err);} 
 					  else {
-					  console.log("Message Deleted", data);
-					  get_number_of_records();				  
+					  console.log("Message Deleted", data);				  
 					  }
 					});*/
 				  }
