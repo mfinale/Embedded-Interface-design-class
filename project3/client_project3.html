@@ -199,22 +199,24 @@
 				"All"
 			 ],
 			 QueueUrl: queueURL,
-			 VisibilityTimeout: 1,
-			 WaitTimeSeconds: 0
+			 VisibilityTimeout: 3, 
+			 WaitTimeSeconds: 3 //enable long polling
 			};
 			
-			
+			// function to retrieve number of records from queue and display on web page
 			get_number_of_records = function (){		
 				var stats_Params = {
 					QueueUrl: queueURL,
 					 AttributeNames: ["All" ]
 				 };
+				var i;
 				sqs.getQueueAttributes(stats_Params, function(err, data) {
 				  if (err) console.log(err, err.stack); 
-				  else     
+				  else    
 					console.log("Records left in queue:", data.Attributes.ApproximateNumberOfMessages);
 					$('#OutputScreen1').text("Records left in queue: " + data.Attributes.ApproximateNumberOfMessages);
 					return (data.Attributes.ApproximateNumberOfMessages);
+					
 				});
 			}
 			
@@ -232,14 +234,20 @@
 						console.log("Retrieved one record.")
 						var obj = JSON.parse(data.Messages[0].Body)
 						add_to_sqs_table(obj["Timestamp"],obj["Temperature"], obj["Humidity"])
-					}					
+					}
+					
 					catch(err) {
 					    console.log(err.name, "Body of message may be empty.");
 						log ("No data. Body of received message may be empty.");
-					}	
+					}
+					
 					sqs.deleteMessage(deleteParams, function(err, data) {
 					  if (err) {console.log("Delete Error", err);} 
-					  else {console.log("Record Deleted", data);}
+					  else {
+					  console.log("Record Deleted", data);
+					  //set a 2 second delay before requesting number of records
+					  setTimeout( function (){get_number_of_records();}, 2000);
+					  }
 					});
 					
 				  }
@@ -248,38 +256,44 @@
 			}
 			
 			
-			// This function retrieves and deletes up to 20 messages from the SQS queue
+			
+			// This function retrieves and deletes up to 100 messages from the SQS queue
 			get_all_sqs_message = function () {
-				sqs.receiveMessage(params, function(err, data) {
-				  if (err) {console.log("Receive Error", err);} 
-				  else if (data.Messages) {			  
-					//try and retrieve message. Catch and handle type error if there is no data
-					try {
-						var deleteParams = {
-						  QueueUrl: queueURL,
-						  ReceiptHandle: data.Messages[0].ReceiptHandle
-						  };
-						console.log("Batch retrieval of records.")
-						var i;
-						for (i=0; i< data.Messages.length; i++){
-						var obj = JSON.parse(data.Messages[i].Body)
-						add_to_sqs_table(obj["Timestamp"],obj["Temperature"], obj["Humidity"])
-						}
-					}					
-					catch(err) {
-					    console.log(err.name, "Body of message may be empty.");
-						console.log(err);
-						log ("No data. Body of received message may be empty.");
-					}		
-				/*	sqs.deleteMessage(deleteParams, function(err, data) {
-					  if (err) {console.log("Delete Error", err);} 
-					  else {
-					  console.log("Message Deleted", data);				  
-					  }
-					});*/
-				  }
-				}); 
-			}
+				var x;
+				for (x=0; x< 10; x++){
+						sqs.receiveMessage(params, function(err, data) {
+						
+						  if (err) {console.log("Receive Error", err);} 
+						  else if (data.Messages) {			  
+							//try and retrieve message. Catch and handle type error if there is no data
+							try {
+								console.log("Batch retrieval of records.")
+								var i;
+								for (i=0; i< data.Messages.length; i++){
+									var deleteParams = {
+									  QueueUrl: queueURL,
+									  ReceiptHandle: data.Messages[i].ReceiptHandle
+									  };	
+									var obj = JSON.parse(data.Messages[i].Body)
+									add_to_sqs_table(obj["Timestamp"],obj["Temperature"], obj["Humidity"])
+									sqs.deleteMessage(deleteParams, function(err, data) {
+									  if (err) {console.log("Delete Error", err);} 
+									  else {
+									  console.log("Message Deleted", data);				  
+									  }
+									});
+								}
+							}					
+							catch(err) {
+								console.log(err.name, "Body of message may be empty.");
+								console.log(err);
+								log ("No data. Body of received message may be empty.");
+							}		
+						  }
+						}); 
+					}
+					setTimeout( function (){get_number_of_records();}, 2000);
+				}
 					
 
 	   });
