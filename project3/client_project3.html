@@ -100,9 +100,11 @@
 			$("footer").prepend("</br>" +data);
 		  };
 		  
-		  //add data to python/tornado table
+		  //add data to table (maximum of 20 records/rows excluding the headers)
 		  add_to_sqs_table = function (Timestamp, Temperature, Humidity) {
 			  var table = document.getElementById("SQS_table");
+			  if (table.rows.length > 20)
+			  {table.deleteRow(20);}
 			  var row = table.insertRow(1);
 			  var cell1 = row.insertCell(0);
 			  var cell2 = row.insertCell(1);
@@ -173,9 +175,11 @@
 		  //proceed once web page has loaded
 		  $(document).ready(function () {
 			
-			
-			hide_output();
+
 			show_table();
+			show_output();
+			
+
 			
 		
 			
@@ -188,7 +192,7 @@
 			
 			var params = {
 			 AttributeNames: [
-				"SentTimestamp"
+				"All"
 			 ],
 			 MaxNumberOfMessages: 10,
 			 MessageAttributeNames: [
@@ -200,28 +204,34 @@
 			};
 			
 			
+			get_number_of_records = function (){		
+				var stats_Params = {
+					QueueUrl: queueURL,
+					 AttributeNames: ["All" ]
+				 };
+				sqs.getQueueAttributes(stats_Params, function(err, data) {
+				  if (err) console.log(err, err.stack); 
+				  else     
+					console.log("Records left in queue:", data.Attributes.ApproximateNumberOfMessages);
+					$('#OutputScreen1').text("Records left in queue: " + data.Attributes.ApproximateNumberOfMessages);
+					return (data.Attributes.ApproximateNumberOfMessages);
+				});
+			}
 			
 			// This function retrieves and then deletes a single message from the SQS queue
 			get_single_sqs_message = function () {
 				sqs.receiveMessage(params, function(err, data) {
 				  if (err) {console.log("Receive Error", err);} 
-				  else if (data.Messages) {
-				  
+				  else if (data.Messages) {			  
 					//try and retrieve message. Catch and handle type error if there is no data
-					try {
-					
+					try {		
 						var deleteParams = {
 						  QueueUrl: queueURL,
 						  ReceiptHandle: data.Messages[0].ReceiptHandle
 						  };
-					
-					
-						console.log(data.Messages[0].Body)
+						console.log("Retrieved one record.")
 						var obj = JSON.parse(data.Messages[0].Body)
-						console.log(obj)
 						add_to_sqs_table(obj["Timestamp"],obj["Temperature"], obj["Humidity"])
-						
-					
 					}					
 					catch(err) {
 					    console.log(err.name, "Body of message may be empty.");
@@ -230,12 +240,51 @@
 					
 					sqs.deleteMessage(deleteParams, function(err, data) {
 					  if (err) {console.log("Delete Error", err);} 
-					  else {console.log("Message Deleted", data);}
+					  else {
+							console.log("Record Deleted", data);
+							get_number_of_records();	  
+					  }
 					});
 				  }
 				}); 
 			}
 			
+			
+			// This function retrieves and deletes up to 20 messages from the SQS queue
+			get_all_sqs_message = function () {
+				sqs.receiveMessage(params, function(err, data) {
+				  if (err) {console.log("Receive Error", err);} 
+				  else if (data.Messages) {			  
+					//try and retrieve message. Catch and handle type error if there is no data
+					try {
+						var deleteParams = {
+						  QueueUrl: queueURL,
+						  ReceiptHandle: data.Messages[0].ReceiptHandle
+						  };
+						console.log("Batch retrieval of records.")
+						var i;
+						for (i=0; i< data.Messages.length; i++){
+						var obj = JSON.parse(data.Messages[i].Body)
+						add_to_sqs_table(obj["Timestamp"],obj["Temperature"], obj["Humidity"])
+						}
+					}					
+					catch(err) {
+					    console.log(err.name, "Body of message may be empty.");
+						console.log(err);
+						log ("No data. Body of received message may be empty.");
+					}		
+				/*	sqs.deleteMessage(deleteParams, function(err, data) {
+					  if (err) {console.log("Delete Error", err);} 
+					  else {
+					  console.log("Message Deleted", data);
+					  get_number_of_records();				  
+					  }
+					});*/
+				  }
+				}); 
+			}
+					
+
 	   });
 	</script>
 	</head>
@@ -249,7 +298,9 @@
 		  <nav>
 			<ul>
 				<button type="button" onclick="get_single_sqs_message()">Get a single SQS record.</button>
-				<button type="button" onclick="">Get ALL SQS records.</button>		
+				<button type="button" onclick="get_all_sqs_message()">Get ALL SQS records.</button>
+				<button type="button" onclick="get_number_of_records()">Get number of records left in SQS queue.</button>	
+						
 			</ul>
 		  </nav>
 		  
