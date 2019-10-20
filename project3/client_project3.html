@@ -257,10 +257,10 @@
 			
 			
 			
-			// This function retrieves and deletes up to 100 messages from the SQS queue
+			// This function retrieves and deletes up to 20 messages from the SQS queue
 			get_all_sqs_message = function () {
 				var x;
-				for (x=0; x< 10; x++){
+				for (x=0; x< 2; x++){
 						sqs.receiveMessage(params, function(err, data) {
 						
 						  if (err) {console.log("Receive Error", err);} 
@@ -269,6 +269,7 @@
 							try {
 								console.log("Batch retrieval of records.")
 								var i;
+								//retrieve 10 messages at a time due to limitations of aws sqs sdk for javascript
 								for (i=0; i< data.Messages.length; i++){
 									var deleteParams = {
 									  QueueUrl: queueURL,
@@ -334,8 +335,8 @@
 		   <table id="SQS_table" style="width:70%"  border="4" >
 			  <tr>
 				<th>Timestamp</th>
-				<th>Temperature</th>
-				<th>Humidity</th> 				
+				<th>Temperature (°C)</th>
+				<th>Humidity (%)</th> 				
 			  </tr>
 		  </table>
 		  </article>
