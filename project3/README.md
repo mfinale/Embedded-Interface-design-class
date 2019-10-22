@@ -28,8 +28,7 @@ received the message via email
 - A web page, with the proper credentials retrieves and deletes these readings from the SQS queue 
 by using the aws sdk for javascript along with jquery.
 
-![alt text](lambda_designer_image.png "Title")
- 
+
 ## Project Work
 Application developed by Michael Finale.  
 
