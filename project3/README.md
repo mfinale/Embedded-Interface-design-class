@@ -17,6 +17,7 @@ and AWSLambdaSNSPublishPolicyExecutionRole permissions attached to its role
 to a defined sns topic. An email account that is also subscribed to this sns topci, 
 received the message via email
 -All messages are sent to the sqs queue with Message Group Id= sensorreadgroupid
+- create a cognito identification pool. The cognito id credentials are needed for the html page.
 - and html web page interfaces with the sqs queue and retrieves data (up to 10 readings at
 a time due to limitiations of Amazon SQS)
 
@@ -35,3 +36,4 @@ Application developed by Michael Finale.
 - [3] https://mkdev.me/en/posts/how-to-send-sms-messages-with-aws-lambda-sns-and-python-3
 https://docs.aws.amazon.com/sns/latest/dg/sns-getting-started.html
 - [4] https://boto3.amazonaws.com/v1/documentation/api/latest/guide/sqs.html#sending-messages
+- https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/getting-started-browser.html
