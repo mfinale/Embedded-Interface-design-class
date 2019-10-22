@@ -27,6 +27,8 @@ received the message via email
 - Otherwise, Lambda sends all sensor readings to the sqs queue with Message Group Id= sensorreadgroupid.
 - A web page, with the proper credentials retrieves and deletes these readings from the SQS queue 
 by using the aws sdk for javascript along with jquery.
+
+![alt text](lambda_designer_image.png "Title")
  
 ## Project Work
 Application developed by Michael Finale.  
