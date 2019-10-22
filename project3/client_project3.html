@@ -112,7 +112,36 @@
 			  cell1.innerHTML = Timestamp;
 			  cell2.innerHTML = Temperature;
 			  cell3.innerHTML = Humidity;
-			}
+			};
+		  
+
+		  convert_temperature = function () {
+			  var table = document.getElementById("SQS_table");
+			  var header= table.rows[0].cells[1].textContent;
+			  var temp;
+			  if (header=="Temperature (°C)"){
+				table.rows[0].cells[1].innerHTML="Temperature (°F)";
+				var i;
+				for (i=1;i<table.rows.length;i++)
+				{temp = table.rows[i].cells[1].textContent;
+				 temp = ((temp*(9/5))+32)
+				 temp= temp.toFixed(2)
+				 table.rows[i].cells[1].innerHTML=temp;
+				}
+			 }
+			  else  {
+				table.rows[0].cells[1].innerHTML="Temperature (°C)";
+				var i;
+				for (i=1;i<table.rows.length;i++)
+				{temp = table.rows[i].cells[1].textContent;
+				 temp = (temp-32)*(5/9)
+				 temp= temp.toFixed(2)
+				 table.rows[i].cells[1].innerHTML=temp;
+				 }
+			  }
+			
+			};
+		 
 			
 		 //function to hide tables
 		  hide_table = function(){
@@ -147,26 +176,7 @@
 		  };
 					
 		  
-		  //function to convert displayed temperature on "OutputScreen2"
-		  convert_temp = function(){
-			var str = $('#OutputScreen2').text();
-			var res = str.split(":");
-			var temp = res[1]
-			var n = temp.search("C")
-			if (n >1){
-				temp = temp.split("*")[0] 
-				temp = ((temp*(9/5))+32)
-				temp = temp.toFixed(2)
-				temp = 'Temperature : '+ temp+ '*F'
-			}
-			else if (n<1){
-				temp = temp.split("*")[0] 
-				temp = (temp-32)*(5/9)
-				temp= temp.toFixed(2)
-				temp = 'Temperature : '+ temp +'*C'
-			}
-			$('#OutputScreen2').text(temp);
-		  };
+		
 		  
 
 		  // Initialize the Amazon Cognito credentials provider
@@ -311,7 +321,8 @@
 			<ul>
 				<button type="button" onclick="get_single_sqs_message()">Get a single SQS record.</button>
 				<button type="button" onclick="get_all_sqs_message()">Get ALL SQS records.</button>
-				<button type="button" onclick="get_number_of_records()">Get number of records left in SQS queue.</button>	
+				<button type="button" onclick="get_number_of_records()">Get number of records left in SQS queue.</button>
+				<button type="button" onclick="convert_temperature()">BLAH.</button>				
 						
 			</ul>
 		  </nav>
