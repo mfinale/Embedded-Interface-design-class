@@ -1,3 +1,10 @@
+# Python 3 code that is ran on lambda in aws.
+# Code runs on event defined by trigger in aws.
+# Handler parses JSON message from trigger and sends to SNS if it is an alert and/or
+# sends it to a SQS queue.
+# sSns topic and sqs url must be defined.
+
+
 import json
 from botocore.exceptions import ClientError
 import urllib
@@ -5,7 +12,6 @@ import boto3
 import logging
 
 print('Loading function')
-
 
 
 

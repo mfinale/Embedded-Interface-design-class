@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>DHT22 Sensor</title>
+	<title>DHT22 Sensor. AWS Interface.</title>
 	
 	<META NAME="author" CONTENT="Michael Finale">
 	<META NAME="distribution" CONTENT=" Redistribution, modification or use of this software in source or binary
@@ -11,16 +11,15 @@
 		
 	<META NAME="copyright" CONTENT="Copyright (C) 2019 by Michael Finale">
 		
-	<META NAME="description" CONTENT="client.html: This html file styles the webpage and establishes a websocket to the python/tornado server at localhost:8888 
-		and a second websocket to the node.js server at localhost:8080.
-		The file contains 4 buttons:
-		-a button to retrieve the current reading from the DHT22 Sensor
-		-a button to retrieve the last temperature and humidity reading from the SQL database that is populated by the python/tornado application. This transaction is done via node.js
-		-a button the converts the temperature readings between Fahrenheit and Celsius for the above two functions.
-		-a button that plots the last 10 SQL database entries via the node.js server and python/tornado server. It also 
-		takes a timestamp of the start, end, and duration (in milliseconds) of each transaction. 
-		The launch.py application must be started before running this webpage.
-		The status of the node.js and tornado server are displayed at the footer.">
+	<META NAME="description" CONTENT="client_project3.html: This html file establishes a connection
+	to an established SQS queue via the aws sdk. The proper credentials must be established using cognito
+	and IAM. The page is able to: 
+	-retrieve and delete a single record from the queue.
+	-retrieve and delete up to 20 records from the queue at once.
+	-request the amount of records left in the queue.
+	-Convert the temperature between Fahrenheit and Celsius.
+	-The amount of records left in the queue is automatically requested after each transaction.
+	">
 	
 	<META NAME="viewport" content="width=device-width, initial-scale=1">
 									   
@@ -114,7 +113,7 @@
 			  cell3.innerHTML = Humidity;
 			};
 		  
-
+		  //convert the temperature displayed in the table
 		  convert_temperature = function () {
 			  var table = document.getElementById("SQS_table");
 			  var header= table.rows[0].cells[1].textContent;
@@ -176,12 +175,10 @@
 		  };
 					
 		  
-		
-		  
-
 		  // Initialize the Amazon Cognito credentials provider
 			AWS.config.region = 'us-east-1'; 
 			AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: 'us-east-1:dce73a31-04e9-4eee-995a-b52acfcfa35d'});
+			
 		  //proceed once web page has loaded
 		  $(document).ready(function () {
 			
@@ -189,17 +186,13 @@
 			show_table();
 			show_output();
 			
-
-			
-		
-			
-			//-----------------------------------functions for AWS SQS-----------------------------------------
-			
+			//-----------------------------------functions for AWS SQS-----------------------------------------			
 			
 			// Create an SQS service object
 			var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 			var queueURL = "https://sqs.us-east-1.amazonaws.com/374381767834/Sensordata.fifo";
 			
+			//parameters for accessing SQS queue
 			var params = {
 			 AttributeNames: [
 				"All"
@@ -244,13 +237,12 @@
 						console.log("Retrieved one record.")
 						var obj = JSON.parse(data.Messages[0].Body)
 						add_to_sqs_table(obj["Timestamp"],obj["Temperature"], obj["Humidity"])
-					}
-					
+					}				
 					catch(err) {
 					    console.log(err.name, "Body of message may be empty.");
 						log ("No data. Body of received message may be empty.");
 					}
-					
+					//delete the record
 					sqs.deleteMessage(deleteParams, function(err, data) {
 					  if (err) {console.log("Delete Error", err);} 
 					  else {
@@ -259,7 +251,6 @@
 					  setTimeout( function (){get_number_of_records();}, 2000);
 					  }
 					});
-					
 				  }
 				}); 
 				
@@ -272,14 +263,13 @@
 				var x;
 				for (x=0; x< 2; x++){
 						sqs.receiveMessage(params, function(err, data) {
-						
 						  if (err) {console.log("Receive Error", err);} 
 						  else if (data.Messages) {			  
 							//try and retrieve message. Catch and handle type error if there is no data
 							try {
 								console.log("Batch retrieval of records.")
 								var i;
-								//retrieve 10 messages at a time due to limitations of aws sqs sdk for javascript
+								//retrieve and delete 10 messages at a time due to limitations of aws sqs sdk for javascript
 								for (i=0; i< data.Messages.length; i++){
 									var deleteParams = {
 									  QueueUrl: queueURL,
@@ -313,7 +303,7 @@
 	
 	<body>
 		<header>
-		  <h2>DHT22 Sensor Web Interface</h2>
+		  <h2>DHT22 Sensor AWS Interface</h2>
 		</header>
 
 		<section>

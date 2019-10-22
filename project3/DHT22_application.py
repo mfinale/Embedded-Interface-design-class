@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""project1gui.py:
+"""DHT22_application.py:
 DHT22 Temperature and Humidity interface for project 1 of Embedded Interface Design Course.
 This python application that runs a PyQt5 which interfaces with a DHT22 sensor with
 the following functions:
@@ -9,6 +9,10 @@ the following functions:
 and humidity
 - plotting of the last 10 temperature readings
 - plotting of the last 10 humidity readings
+Project 3 adds the following functionality:
+- connects to a aws iot endpoint with ssl credentials
+- sends mqtt messages to aws iot endpoint using paho library 
+- mqtt messages are sent on automatic and manual sensor reads in JSON 
 
 Application was developed to be used on a Raspberry Pi 3 running Raspian Buster OS.
 Please view readme for installation details.
