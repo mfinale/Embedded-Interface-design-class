@@ -217,9 +217,7 @@
 				  if (err) console.log(err, err.stack); 
 				  else    
 					console.log("Records left in queue:", data.Attributes.ApproximateNumberOfMessages);
-					$('#OutputScreen1').text("Records left in queue: " + data.Attributes.ApproximateNumberOfMessages);
-					return (data.Attributes.ApproximateNumberOfMessages);
-					
+					$('#OutputScreen1').text("Records left in queue: " + data.Attributes.ApproximateNumberOfMessages);			
 				});
 			}
 			
@@ -247,8 +245,9 @@
 					  if (err) {console.log("Delete Error", err);} 
 					  else {
 					  console.log("Record Deleted", data);
-					  //set a 2 second delay before requesting number of records
-					  setTimeout( function (){get_number_of_records();}, 2000);
+					  //set a 4 second delay before requesting number of records
+					  $('#OutputScreen1').text("Retrieving number of reamining records in SQS.....")
+					  setTimeout( function (){get_number_of_records();}, 4000);
 					  }
 					});
 				  }
@@ -293,7 +292,8 @@
 						  }
 						}); 
 					}
-					setTimeout( function (){get_number_of_records();}, 2000);
+					$('#OutputScreen1').text("Retrieving number of reamining records in SQS.....")
+					setTimeout( function (){get_number_of_records();}, 4000);
 				}
 					
 
