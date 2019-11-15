@@ -2,6 +2,7 @@ import boto3
 import time
 import urllib
 import json
+import pygame
 
 
 
@@ -9,6 +10,15 @@ import json
 polly = boto3.client('polly')
 s3 = boto3.resource('s3')
 transcribe = boto3.client('transcribe')
+
+# plays specified audio file to raspberry pi speaker
+def play_audio(audio_file_speaker):
+    pygame.mixer.init()
+    pygame.mixer.music.load(audio_file_speaker)
+    print("Playing audio on speaker")
+    pygame.mixer.music.play()
+    while pygame.mixer.music.get_busy() == True:
+        continue
 
 
 #converts given text to an audio file titled "speech.mp3"
@@ -27,6 +37,7 @@ def speech_to_text(audio_file_name):
     job_uri = "https://magic-wand-bucket.s3.amazonaws.com/"+audio_file_name
     transcribe.delete_transcription_job(TranscriptionJobName=job_name)
     print ("Beginning transciption of recorded speech.")
+    play_audio('processing.mp3')
     transcribe.start_transcription_job(
         TranscriptionJobName=job_name,
         Media={'MediaFileUri': job_uri},
@@ -55,8 +66,10 @@ def speech_to_text(audio_file_name):
 
 
 
-text_to_speech('I finally got this to work.')
+text_to_speech('Identify.')
+play_audio('speech.mp3')
 speech_to_text('speech.mp3')
+
 
 
 
