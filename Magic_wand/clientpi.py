@@ -5,11 +5,13 @@ import json
 import pygame
 
 
-
-
+# aws resources
 polly = boto3.client('polly')
 s3 = boto3.resource('s3')
 transcribe = boto3.client('transcribe')
+rekognition= boto3.client('rekognition')
+
+
 
 # plays specified audio file to raspberry pi speaker
 def play_audio(audio_file_speaker):
@@ -48,7 +50,7 @@ def speech_to_text(audio_file_name):
         status = transcribe.get_transcription_job(TranscriptionJobName=job_name)
         if status['TranscriptionJob']['TranscriptionJobStatus'] in ['COMPLETED', 'FAILED']:
             break
-        print("Transcripting speech. Transcription Status: "+status['TranscriptionJob']['TranscriptionJobStatus'])
+        print("Transcribing speech. Transcription Status: "+status['TranscriptionJob']['TranscriptionJobStatus'])
         time.sleep(5)
     print(status['TranscriptionJob']['TranscriptionJobStatus'])
     url=status['TranscriptionJob']['Transcript']['TranscriptFileUri']
@@ -63,12 +65,31 @@ def speech_to_text(audio_file_name):
     data= data[0]['transcript']
     print (data)
 
+#converts a jpeg image into bytes and sends to aws rekognition which assigns the photo a label
+def get_image_label(photo):
+    print ("Analyzing image using rekognition.")
+    with open(photo, 'rb') as source_image:
+        source_bytes = source_image.read()
+        response= rekognition.detect_labels(Image={'Bytes':source_bytes}, MaxLabels=1, MinConfidence=99.0)
+        response = response['Labels'][0]['Name']
+        return response
 
 
 
+
+
+
+
+
+#Test 1: convert given text to audio. Play the  audio file. Process audio file using AWS transcribe.
 text_to_speech('Identify.')
 play_audio('speech.mp3')
 speech_to_text('speech.mp3')
+# Test 2: Get a label for a specified image via aws rekognition. Convert label to audio. Play audio.
+result = get_image_label('texas-flag-lonestar-state-usa.jpg')
+print (result)
+text_to_speech(result)
+play_audio('speech.mp3')
 
 
 
