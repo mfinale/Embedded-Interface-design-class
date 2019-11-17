@@ -75,6 +75,28 @@ def get_image_label(photo):
         return response
 
 
+def command_isvalid(command_text):
+    if 'identify' in command_text:
+        print ('Received command '+ command_text+ ' from user.')
+        #function to take a photo
+        get_image_label('texas-flag-lonestar-state-usa.jpg')
+        play_audio('speech.mp3')
+        isvalid_result = True
+    elif 'wrong' in command_text:
+        print ('Received command '+ command_text+ ' from user.')
+        isvalid_result = True
+    elif 'correct' in command_text:
+        print ('Received command '+ command_text+ ' from user.')
+        isvalid_result = True
+    else:
+        print ('ERROR: '+ command_text+' is not a valid command')
+        text_to_speech('ERROR: '+ command_text+' is not a valid command')
+        play_audio('speech.mp3')
+        isvalid_result = False
+    command_info = {"command": command_text, "is_valid":isvalid_result}
+    command_info = json.dumps(command_info)
+    #function to send to sqs
+    return isvalid_result
 
 
 
@@ -82,14 +104,22 @@ def get_image_label(photo):
 
 
 #Test 1: convert given text to audio. Play the  audio file. Process audio file using AWS transcribe.
-text_to_speech('Identify.')
-play_audio('speech.mp3')
-speech_to_text('speech.mp3')
+#text_to_speech('Identify.')
+#play_audio('speech.mp3')
+#speech_to_text('speech.mp3')
 # Test 2: Get a label for a specified image via aws rekognition. Convert label to audio. Play audio.
-result = get_image_label('texas-flag-lonestar-state-usa.jpg')
-print (result)
-text_to_speech(result)
-play_audio('speech.mp3')
+#result = get_image_label('texas-flag-lonestar-state-usa.jpg')
+#print (result)
+#text_to_speech(result)
+#play_audio('speech.mp3')
+# Test 3: Evaluate a string for a command transcribed from user's voice and evaluate if valid or not.
+#command_text= 'wrong'
+#print(command_isvalid(command_text))
+#command_text= 'self destruct'
+#print(command_isvalid(command_text))
+command_isvalid('identify')
+
+
 
 
 
