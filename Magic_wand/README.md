@@ -3,3 +3,4 @@ http://2017.compciv.org/guide/topics/aws/intro-to-aws-boto3.html#installing-the-
 create an s3 bucket : magic-wand-bucket
 https://realpython.com/python-boto3-aws-s3/
 https://raspberrypi.stackexchange.com/questions/7088/playing-audio-files-with-python
+https://docs.aws.amazon.com/code-samples/latest/catalog/python-sqs-send_message.py.html

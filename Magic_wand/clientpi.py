@@ -1,8 +1,11 @@
 import boto3
 import time
+import datetime
 import urllib
 import json
 import pygame
+from botocore.exceptions import ClientError
+import logging
 
 
 # aws resources
@@ -10,7 +13,8 @@ polly = boto3.client('polly')
 s3 = boto3.resource('s3')
 transcribe = boto3.client('transcribe')
 rekognition= boto3.client('rekognition')
-
+sqs=boto3.client('sqs')
+sqs_queue_url='https://sqs.us-east-1.amazonaws.com/374381767834/magicwand_queue.fifo'	
 
 
 # plays specified audio file to raspberry pi speaker
@@ -64,6 +68,7 @@ def speech_to_text(audio_file_name):
     data = data['results']['transcripts']
     data= data[0]['transcript']
     print (data)
+    return data
 
 #converts a jpeg image into bytes and sends to aws rekognition which assigns the photo a label
 def get_image_label(photo):
@@ -74,31 +79,57 @@ def get_image_label(photo):
         response = response['Labels'][0]['Name']
         return response
 
-
+# function to evaluate voice command from user. Accepts identify, wrong, and correct. Sends all recorded commands to sqs
 def command_isvalid(command_text):
     if 'identify' in command_text:
-        print ('Received command '+ command_text+ ' from user.')
-        #function to take a photo
-        get_image_label('texas-flag-lonestar-state-usa.jpg')
+        print ('Received command ['+ command_text+ '] from user.')
+        text_to_speech('Received voice command: '+ command_text)
         play_audio('speech.mp3')
+        #function to take a photo
         isvalid_result = True
     elif 'wrong' in command_text:
-        print ('Received command '+ command_text+ ' from user.')
+        print ('Received command ['+ command_text+ '] from user.')
         isvalid_result = True
     elif 'correct' in command_text:
-        print ('Received command '+ command_text+ ' from user.')
+        print ('Received command ['+ command_text+ '] from user.')
         isvalid_result = True
     else:
-        print ('ERROR: '+ command_text+' is not a valid command')
+        print ('ERROR: ['+ command_text+'] is not a valid command')
         text_to_speech('ERROR: '+ command_text+' is not a valid command')
         play_audio('speech.mp3')
         isvalid_result = False
-    command_info = {"command": command_text, "is_valid":isvalid_result}
-    command_info = json.dumps(command_info)
-    #function to send to sqs
+    sqs_info = {"message_type":"voice_command","command": command_text, "is_valid":isvalid_result, "time": str(datetime.datetime.now())}
+    sqs_info = json.dumps(sqs_info)
+    send_to_sqs(sqs_info)
     return isvalid_result
 
 
+#evaluate user's response to label that was generated for image. Send result to SQS
+def evaluate_result(transcribed_user_command,label):
+    if 'wrong' in transcribed_user_command:
+        sqs_info = {"message_type":"Evaluate_label","image_label": label, "result":"wrong","time": str(datetime.datetime.now())}
+        print ('Label for image is wrong.')
+        play_audio('wrong.mp3')
+    elif 'correct' in transcribed_user_command:
+        sqs_info = {"message_type":"Evaluate_label","image_label": label, "result":"correct","time": str(datetime.datetime.now())}
+        print ('Label for image is correct!')
+        play_audio('correct.mp3')
+    sqs_info = json.dumps(sqs_info)
+    send_to_sqs(sqs_info)
+
+
+
+#def function to send image to s3
+
+
+#function that sends data to sqs
+def send_to_sqs(msg_body):
+    try:
+        msg = sqs.send_message(QueueUrl=sqs_queue_url,MessageBody=msg_body,MessageGroupId='magicwand_group')
+    except ClientError as e:
+        logging.error(e)
+        return None
+    return msg
 
 
 
@@ -112,13 +143,34 @@ def command_isvalid(command_text):
 #print (result)
 #text_to_speech(result)
 #play_audio('speech.mp3')
-# Test 3: Evaluate a string for a command transcribed from user's voice and evaluate if valid or not.
-#command_text= 'wrong'
-#print(command_isvalid(command_text))
-#command_text= 'self destruct'
-#print(command_isvalid(command_text))
+# Test 3: Evaluate a string for a command transcribed from user's voice and evaluate if valid or not. (also send results to sqs)
+command_text= 'wrong'
+command_isvalid(command_text)
+command_text= 'self destruct'
+command_isvalid(command_text)
 command_isvalid('identify')
+#Test 4: Evaluate the response recorded by the user for given label for an image. Respond to the user with a sound and send results to SQS
+evaluate_result('correct','test_label')
+evaluate_result('wrong','test_label')
 
+
+##mainloop pseudo code
+#listen for users voice
+#record audio
+#transcribe audio
+#evaluate transcribed audio
+#if not identify - say invalid command and loop
+#if identify -
+#capture and store image (play audio while capturing)
+#send to aws lex to get label
+# play audio of label back to user and ask is this correct or wrong?
+#listen for users voice
+#record audio
+#transcribe audio
+#evaluate transcribed audio
+# if not wrong or correct say invalid command and loop back
+# if correct or wrong evaluate response against label
+# start from beginning
 
 
 
