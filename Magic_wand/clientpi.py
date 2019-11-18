@@ -119,8 +119,11 @@ def evaluate_result(transcribed_user_command,label):
 
 
 
-#def function to send image to s3
-
+#def function to capture image and send to s3. Delete old image in bucket
+def capture_image(image_file_name):
+    #take a picture and store it as a jpeg "image_file_name"
+    s3.Object('magic-wand-image-bucket', image_file_name).delete()
+    s3.Object('magic-wand-image-bucket', image_file_name).upload_file(Filename=image_file_name)
 
 #function that sends data to sqs
 def send_to_sqs(msg_body):
@@ -144,14 +147,18 @@ def send_to_sqs(msg_body):
 #text_to_speech(result)
 #play_audio('speech.mp3')
 # Test 3: Evaluate a string for a command transcribed from user's voice and evaluate if valid or not. (also send results to sqs)
-command_text= 'wrong'
-command_isvalid(command_text)
-command_text= 'self destruct'
-command_isvalid(command_text)
-command_isvalid('identify')
+#command_text= 'wrong'
+#command_isvalid(command_text)
+#command_text= 'self destruct'
+#command_isvalid(command_text)
+#command_isvalid('identify')
 #Test 4: Evaluate the response recorded by the user for given label for an image. Respond to the user with a sound and send results to SQS
-evaluate_result('correct','test_label')
-evaluate_result('wrong','test_label')
+#evaluate_result('correct','test_label')
+#evaluate_result('wrong','test_label')
+
+#Test 5 Send a captured jpeg image to s3
+capture_image('sample_JPEG.jpg')
+
 
 
 ##mainloop pseudo code
