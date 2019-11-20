@@ -78,7 +78,7 @@ def get_image_label(photo):
     with open(photo, 'rb') as source_image:
         source_bytes = source_image.read()
         try:
-            response= rekognition.detect_labels(Image={'Bytes':source_bytes}, MaxLabels=1, MinConfidence=80.0)
+            response= rekognition.detect_labels(Image={'Bytes':source_bytes}, MaxLabels=1, MinConfidence=60.0)
             response = response['Labels'][0]['Name']
         except:
             response = "Cannot identify object."
@@ -94,9 +94,13 @@ def command_isvalid(command_text):
         isvalid_result = True
     elif 'wrong' in command_text:
         print ('Received command ['+ command_text+ '] from user.')
+        text_to_speech('Received voice command: '+ command_text)
+        play_audio('speech.mp3')
         isvalid_result = True
     elif 'correct' in command_text:
         print ('Received command ['+ command_text+ '] from user.')
+        text_to_speech('Received voice command: '+ command_text)
+        play_audio('speech.mp3')
         isvalid_result = True
     else:
         print ('ERROR: ['+ command_text+'] is not a valid command')
@@ -126,6 +130,7 @@ def evaluate_result(transcribed_user_command,label):
 
 #def function to capture image and send to s3. Delete old image in bucket
 def capture_image(image_file_name):
+    print ("Taking a photo in 5 seconds.")
     sleep(5)
     camera.capture(image_file_name)
     s3.Object('magic-wand-image-bucket', image_file_name).delete()
@@ -148,15 +153,12 @@ def send_to_sqs(msg_body):
 #play_audio('speech.mp3')
 #speech_to_text('speech.mp3')
 # Test 2: Get a label for a specified image via aws rekognition. Convert label to audio. Play audio.
-result = get_image_label('texas-flag-lonestar-state-usa.jpg')
-print (result)
-text_to_speech(result)
-play_audio('speech.mp3')
+#result = get_image_label('texas-flag-lonestar-state-usa.jpg')
+#print (result)
+#text_to_speech(result)
+#play_audio('speech.mp3')
 # Test 3: Evaluate a string for a command transcribed from user's voice and evaluate if valid or not. (also send results to sqs)
-#command_text= 'wrong'
-#command_isvalid(command_text)
-#command_text= 'self destruct'
-#command_isvalid(command_text)
+#command_isvalid('self destruct')
 #command_isvalid('identify')
 #Test 4: Evaluate the response recorded by the user for given label for an image. Respond to the user with a sound and send results to SQS
 #evaluate_result('correct','test_label')
