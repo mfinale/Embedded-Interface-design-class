@@ -1,12 +1,14 @@
 import boto3
 import time
+from time import sleep
 import datetime
 import urllib
 import json
 import pygame
 from botocore.exceptions import ClientError
 import logging
-
+from picamera import PiCamera
+camera = PiCamera()
 
 # aws resources
 polly = boto3.client('polly')
@@ -75,8 +77,11 @@ def get_image_label(photo):
     print ("Analyzing image using rekognition.")
     with open(photo, 'rb') as source_image:
         source_bytes = source_image.read()
-        response= rekognition.detect_labels(Image={'Bytes':source_bytes}, MaxLabels=1, MinConfidence=99.0)
-        response = response['Labels'][0]['Name']
+        try:
+            response= rekognition.detect_labels(Image={'Bytes':source_bytes}, MaxLabels=1, MinConfidence=80.0)
+            response = response['Labels'][0]['Name']
+        except:
+            response = "Cannot identify object."
         return response
 
 # function to evaluate voice command from user. Accepts identify, wrong, and correct. Sends all recorded commands to sqs
@@ -121,7 +126,8 @@ def evaluate_result(transcribed_user_command,label):
 
 #def function to capture image and send to s3. Delete old image in bucket
 def capture_image(image_file_name):
-    #take a picture and store it as a jpeg "image_file_name"
+    sleep(5)
+    camera.capture(image_file_name)
     s3.Object('magic-wand-image-bucket', image_file_name).delete()
     s3.Object('magic-wand-image-bucket', image_file_name).upload_file(Filename=image_file_name)
 
@@ -142,10 +148,10 @@ def send_to_sqs(msg_body):
 #play_audio('speech.mp3')
 #speech_to_text('speech.mp3')
 # Test 2: Get a label for a specified image via aws rekognition. Convert label to audio. Play audio.
-#result = get_image_label('texas-flag-lonestar-state-usa.jpg')
-#print (result)
-#text_to_speech(result)
-#play_audio('speech.mp3')
+result = get_image_label('texas-flag-lonestar-state-usa.jpg')
+print (result)
+text_to_speech(result)
+play_audio('speech.mp3')
 # Test 3: Evaluate a string for a command transcribed from user's voice and evaluate if valid or not. (also send results to sqs)
 #command_text= 'wrong'
 #command_isvalid(command_text)
@@ -157,7 +163,11 @@ def send_to_sqs(msg_body):
 #evaluate_result('wrong','test_label')
 
 #Test 5 Send a captured jpeg image to s3
-capture_image('sample_JPEG.jpg')
+capture_image('capture.jpg')
+result = get_image_label('capture.jpg')
+print (result)
+text_to_speech(result)
+play_audio('speech.mp3')
 
 
 
