@@ -8,6 +8,8 @@ import pygame
 from botocore.exceptions import ClientError
 import logging
 from picamera import PiCamera
+import os
+import pydub
 camera = PiCamera()
 
 # aws resources
@@ -85,12 +87,17 @@ def get_image_label(photo):
         return response
 
 # function to evaluate voice command from user. Accepts identify, wrong, and correct. Sends all recorded commands to sqs
+# to do: have to put a flag to reject identify if command is received in wrong context
 def command_isvalid(command_text):
     if 'identify' in command_text:
         print ('Received command ['+ command_text+ '] from user.')
         text_to_speech('Received voice command: '+ command_text)
         play_audio('speech.mp3')
-        #function to take a photo
+        capture_image('capture.jpg')
+        result = get_image_label('capture.jpg')
+        print (result)
+        text_to_speech(result)
+        play_audio('speech.mp3')
         isvalid_result = True
     elif 'wrong' in command_text:
         print ('Received command ['+ command_text+ '] from user.')
@@ -145,39 +152,43 @@ def send_to_sqs(msg_body):
         return None
     return msg
 
+#record voice in wav then conver to mp3 for aws transcribe
+def record_voice():
+    os.system("arecord -D plughw:1,0 -r 22050 -d 3 input.wav")
+    mp3_file = "input.mp3"
+    sound = pydub.AudioSegment.from_wav("input.wav")
+    sound.export(mp3_file, format="mp3")
 
 
 
-#Test 1: convert given text to audio. Play the  audio file. Process audio file using AWS transcribe.
-#text_to_speech('Identify.')
-#play_audio('speech.mp3')
-#speech_to_text('speech.mp3')
-# Test 2: Get a label for a specified image via aws rekognition. Convert label to audio. Play audio.
-#result = get_image_label('texas-flag-lonestar-state-usa.jpg')
-#print (result)
-#text_to_speech(result)
-#play_audio('speech.mp3')
-# Test 3: Evaluate a string for a command transcribed from user's voice and evaluate if valid or not. (also send results to sqs)
-#command_isvalid('self destruct')
-#command_isvalid('identify')
+
+
+
+
+
 #Test 4: Evaluate the response recorded by the user for given label for an image. Respond to the user with a sound and send results to SQS
 #evaluate_result('correct','test_label')
 #evaluate_result('wrong','test_label')
 
-#Test 5 Send a captured jpeg image to s3
-capture_image('capture.jpg')
-result = get_image_label('capture.jpg')
-print (result)
-text_to_speech(result)
-play_audio('speech.mp3')
+
+
+
+
+
+
 
 
 
 ##mainloop pseudo code
 #listen for users voice
 #record audio
+record_voice()
 #transcribe audio
+command = speech_to_text('input.mp3')
 #evaluate transcribed audio
+command_isvalid(command)
+
+
 #if not identify - say invalid command and loop
 #if identify -
 #capture and store image (play audio while capturing)
