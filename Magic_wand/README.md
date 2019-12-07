@@ -7,3 +7,4 @@ https://docs.aws.amazon.com/code-samples/latest/catalog/python-sqs-send_message.
 setup usb mic using tutorial
 setup pydub to convert to mp3
 setup buttton : http://razzpisampler.oreilly.com/ch07.html
+audio files from: http://www.orangefreesounds.com/

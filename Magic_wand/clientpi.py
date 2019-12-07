@@ -139,7 +139,10 @@ def evaluate_result(transcribed_user_command,label):
 #def function to capture image and send to s3. Delete old image in bucket
 def capture_image(image_file_name):
     print ("Taking a photo in 5 seconds.")
+    text_to_speech('Please point camera at target object. In 5 seconds device will take photo.')
+    play_audio('speech.mp3')
     sleep(5)
+    play_audio('capturing.mp3')
     camera.capture(image_file_name)
     s3.Object('magic-wand-image-bucket', image_file_name).delete()
     s3.Object('magic-wand-image-bucket', image_file_name).upload_file(Filename=image_file_name)
