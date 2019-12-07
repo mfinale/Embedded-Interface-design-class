@@ -99,11 +99,6 @@ def command_isvalid(command_text):
         print ('Received command ['+ command_text+ '] from user.')
         text_to_speech('Received voice command: '+ command_text)
         play_audio('speech.mp3')
-        capture_image('capture.jpg')
-        result = get_image_label('capture.jpg')
-        print (result)
-        text_to_speech(result)
-        play_audio('speech.mp3')
         isvalid_result = True
     elif 'wrong' in command_text:
         print ('Received command ['+ command_text+ '] from user.')
@@ -170,30 +165,27 @@ while True:
     input_state = GPIO.input(18)
     if input_state == False:
         print('Button Pressed')
+        text_to_speech("Please say a command.")
+        play_audio('speech.mp3')
         record_voice()
         command = speech_to_text('input.mp3')
         command_isvalid(command)
-
-##mainloop pseudo code done
-#listen for users voice done
-#record audio done
-#transcribe audio
-#evaluate transcribed audio
-
-
-
-#if not identify - say invalid command and loop
-#if identify -
-#capture and store image (play audio while capturing)
-#send to aws lex to get label
-# play audio of label back to user and ask is this correct or wrong?
-#listen for users voice
-#record audio
-#transcribe audio
-#evaluate transcribed audio
-# if not wrong or correct say invalid command and loop back
-# if correct or wrong evaluate response against label
-# start from beginning
+        if 'identify' in command:
+            capture_image('capture.jpg')
+            result = get_image_label('capture.jpg')
+            print (result)
+            response_isvalid = False
+            while not response_isvalid :
+                text_to_speech(result)
+                play_audio('speech.mp3')
+                text_to_speech("Is this the correct name of the object?")
+                play_audio('speech.mp3')
+                record_voice()
+                response = speech_to_text('input.mp3')
+                response_isvalid = command_isvalid(response)
+                if 'identify' in response:
+                    response_isvalid = False
+            evaluate_result(response,result)
 
 
 
