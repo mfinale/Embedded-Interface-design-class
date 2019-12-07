@@ -1,5 +1,6 @@
 import boto3
 import time
+import RPi.GPIO as GPIO
 from time import sleep
 import datetime
 import urllib
@@ -10,7 +11,12 @@ import logging
 from picamera import PiCamera
 import os
 import pydub
+
+#raspberry pi resources
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 camera = PiCamera()
+
 
 # aws resources
 polly = boto3.client('polly')
@@ -160,33 +166,20 @@ def record_voice():
     sound.export(mp3_file, format="mp3")
 
 
+while True:
+    input_state = GPIO.input(18)
+    if input_state == False:
+        print('Button Pressed')
+        record_voice()
+        command = speech_to_text('input.mp3')
+        command_isvalid(command)
 
-
-
-
-
-
-#Test 4: Evaluate the response recorded by the user for given label for an image. Respond to the user with a sound and send results to SQS
-#evaluate_result('correct','test_label')
-#evaluate_result('wrong','test_label')
-
-
-
-
-
-
-
-
-
-
-##mainloop pseudo code
-#listen for users voice
-#record audio
-record_voice()
+##mainloop pseudo code done
+#listen for users voice done
+#record audio done
 #transcribe audio
-command = speech_to_text('input.mp3')
 #evaluate transcribed audio
-command_isvalid(command)
+
 
 
 #if not identify - say invalid command and loop
