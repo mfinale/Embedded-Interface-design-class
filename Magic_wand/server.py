@@ -2,6 +2,7 @@ import boto3
 import time
 from time import sleep
 import datetime
+import mysql.connector
 import urllib
 import json
 from botocore.exceptions import ClientError
@@ -12,6 +13,10 @@ import os
 s3 = boto3.resource('s3')
 sqs=boto3.client('sqs')
 sqs_queue_url='https://sqs.us-east-1.amazonaws.com/374381767834/magicwand_queue.fifo'	
+
+mydb = mysql.connector.connect(host="localhost",user="admin",passwd="mfeid123",
+                               database='magicwanddb')
+mycursor = mydb.cursor()
 
 
 #def function to capture image and send to s3. Delete old image in bucket
@@ -76,17 +81,30 @@ def delete_sqs_message(sqs_queue_url, msg_receipt_handle):
 
 
 def main():
-    """Exercise retrieve_sqs_messages()"""
     num_messages = 10
-
-    # Retrieve SQS messages
+    # Retrieve SQS messages and send to label_data table or command_data table depending on message_type
     msgs = retrieve_sqs_messages(sqs_queue_url, num_messages)
     if msgs is not None:
         for msg in msgs:
-            print (msg["Body"])
+            data = msg["Body"]
+            print(data)
+            data = json.loads(data)
+            msg_type = data["message_type"]
+            if "command" in msg_type:
+                val = (data["message_type"],data["command"],data["is_valid"],data["time"])
+                sql = "INSERT INTO command_data (message_type, command, is_valid, time) VALUES (%s, %s, %s, %s)"
+                mycursor.execute(sql, val)
+                mydb.commit()
+            elif "Evaluate_label" in msg_type:
+                val = (data["message_type"],data["image_label"],data["result"],data["time"])
+                sql = "INSERT INTO label_data (message_type, image_label, result, time) VALUES (%s, %s, %s, %s)"
+                mycursor.execute(sql, val)
+                mydb.commit()
 
             # Remove the message from the queue
-           # delete_sqs_message(sqs_queue_url, msg['ReceiptHandle'])
+            # delete_sqs_message(sqs_queue_url, msg['ReceiptHandle'])
+            #
+
 
 
 if __name__ == '__main__':
