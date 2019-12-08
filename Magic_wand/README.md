@@ -1,6 +1,9 @@
+
 setup boto and aws credentials:
+https://ownthe.cloud/posts/configure-aws-cli-on-raspberry-pi/
 http://2017.compciv.org/guide/topics/aws/intro-to-aws-boto3.html#installing-the-aws-tools
 create an s3 bucket : magic-wand-bucket
+install node https://www.w3schools.com/nodejs/nodejs_raspberrypi.asp
 https://realpython.com/python-boto3-aws-s3/
 https://raspberrypi.stackexchange.com/questions/7088/playing-audio-files-with-python
 https://docs.aws.amazon.com/code-samples/latest/catalog/python-sqs-send_message.py.html
