@@ -13,10 +13,17 @@ import os
 s3 = boto3.resource('s3')
 sqs=boto3.client('sqs')
 sqs_queue_url='https://sqs.us-east-1.amazonaws.com/374381767834/magicwand_queue.fifo'	
-
+#create a databas connection
 mydb = mysql.connector.connect(host="localhost",user="admin",passwd="mfeid123",
                                database='magicwanddb')
 mycursor = mydb.cursor()
+
+
+#start with clean table called "command_data" and "label_data"
+mycursor.execute("DROP TABLE command_data")
+mycursor.execute("CREATE TABLE command_data ( message_type VARCHAR(50), command VARCHAR(100), is_valid VARCHAR(20), time VARCHAR(100))")
+mycursor.execute("DROP TABLE label_data")
+mycursor.execute("CREATE TABLE label_data ( message_type VARCHAR(50),  image_label VARCHAR(100), result VARCHAR(20), time VARCHAR(100))")
 
 
 #def function to capture image and send to s3. Delete old image in bucket
@@ -100,7 +107,14 @@ def main():
                 sql = "INSERT INTO label_data (message_type, image_label, result, time) VALUES (%s, %s, %s, %s)"
                 mycursor.execute(sql, val)
                 mydb.commit()
-
+    mycursor.execute("SELECT * FROM command_data")
+    myresult= mycursor.fetchall()
+    for x in myresult:
+        print (x)
+    mycursor.execute("SELECT * FROM label_data")
+    myresult= mycursor.fetchall()
+    for x in myresult:
+        print (x)
             # Remove the message from the queue
             # delete_sqs_message(sqs_queue_url, msg['ReceiptHandle'])
             #
