@@ -1,13 +1,10 @@
 import boto3
 import time
 from time import sleep
-import datetime
 import mysql.connector
-import urllib
 import json
 from botocore.exceptions import ClientError
-import logging
-import os
+
 
 
 s3 = boto3.resource('s3')
@@ -66,12 +63,13 @@ def retrieve_sqs_messages(sqs_queue_url, num_msgs=1, wait_time=0, visibility_tim
                                           MaxNumberOfMessages=num_msgs,
                                           WaitTimeSeconds=wait_time,
                                           VisibilityTimeout=visibility_time)
-    except ClientError as e:
-        logging.error(e)
+        return msgs['Messages']
+    except:
+        print ("No messages in SQS queue")
         return None
 
     # Return the list of retrieved messages
-    return msgs['Messages']
+
 
 
 def delete_sqs_message(sqs_queue_url, msg_receipt_handle):
@@ -88,36 +86,39 @@ def delete_sqs_message(sqs_queue_url, msg_receipt_handle):
 
 
 def main():
-    num_messages = 10
-    # Retrieve SQS messages and send to label_data table or command_data table depending on message_type
-    msgs = retrieve_sqs_messages(sqs_queue_url, num_messages)
-    if msgs is not None:
-        for msg in msgs:
-            data = msg["Body"]
-            print(data)
-            data = json.loads(data)
-            msg_type = data["message_type"]
-            if "command" in msg_type:
-                val = (data["message_type"],data["command"],data["is_valid"],data["time"])
-                sql = "INSERT INTO command_data (message_type, command, is_valid, time) VALUES (%s, %s, %s, %s)"
-                mycursor.execute(sql, val)
-                mydb.commit()
-            elif "Evaluate_label" in msg_type:
-                val = (data["message_type"],data["image_label"],data["result"],data["time"])
-                sql = "INSERT INTO label_data (message_type, image_label, result, time) VALUES (%s, %s, %s, %s)"
-                mycursor.execute(sql, val)
-                mydb.commit()
-    mycursor.execute("SELECT * FROM command_data")
-    myresult= mycursor.fetchall()
-    for x in myresult:
-        print (x)
-    mycursor.execute("SELECT * FROM label_data")
-    myresult= mycursor.fetchall()
-    for x in myresult:
-        print (x)
-            # Remove the message from the queue
-            # delete_sqs_message(sqs_queue_url, msg['ReceiptHandle'])
-            #
+    num_messages = 1
+    # Retrieve a SQS message and send to label_data table or command_data table depending on message_type
+    # Delete the message from the SQS queue afterwards. Do this once every 6 seconds
+    while (True):
+        msgs = retrieve_sqs_messages(sqs_queue_url, num_messages)
+        if msgs is not None:
+            for msg in msgs:
+                data = msg["Body"]
+                delete_sqs_message(sqs_queue_url, msg['ReceiptHandle'])
+                #print(data)
+                data = json.loads(data)
+                msg_type = data["message_type"]
+                if "command" in msg_type:
+                    val = (data["message_type"],data["command"],data["is_valid"],data["time"])
+                    sql = "INSERT INTO command_data (message_type, command, is_valid, time) VALUES (%s, %s, %s, %s)"
+                    mycursor.execute(sql, val)
+                    mydb.commit()
+                elif "Evaluate_label" in msg_type:
+                    val = (data["message_type"],data["image_label"],data["result"],data["time"])
+                    sql = "INSERT INTO label_data (message_type, image_label, result, time) VALUES (%s, %s, %s, %s)"
+                    mycursor.execute(sql, val)
+                    mydb.commit()
+        #the below code for mysql is for checking databases
+        mycursor.execute("SELECT * FROM command_data")
+        myresult= mycursor.fetchall()
+        for x in myresult:
+            print (x)
+        mycursor.execute("SELECT * FROM label_data")
+        myresult= mycursor.fetchall()
+        for x in myresult:
+            print (x)
+        #sleep 6 seconds between each iteration
+        time.sleep(6)
 
 
 
