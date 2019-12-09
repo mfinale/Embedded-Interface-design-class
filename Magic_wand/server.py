@@ -1,4 +1,5 @@
 import boto3
+import botocore
 import time
 from time import sleep
 import mysql.connector
@@ -23,16 +24,18 @@ mycursor.execute("DROP TABLE label_data")
 mycursor.execute("CREATE TABLE label_data ( message_type VARCHAR(50),  image_label VARCHAR(100), result VARCHAR(20), time VARCHAR(100))")
 
 
-#def function to capture image and send to s3. Delete old image in bucket
-def capture_image(image_file_name):
-    print ("Taking a photo in 5 seconds.")
-    text_to_speech('Please point camera at target object. In 5 seconds device will take photo.')
-    play_audio('speech.mp3')
-    sleep(5)
-    play_audio('capturing.mp3')
-    camera.capture(image_file_name)
-    s3.Object('magic-wand-image-bucket', image_file_name).delete()
-    s3.Object('magic-wand-image-bucket', image_file_name).upload_file(Filename=image_file_name)
+BUCKET_NAME = 'my-bucket' # replace with your bucket name
+KEY = 'my_image_in_s3.jpg' # replace with your object key
+
+#retrieves image from magic-wand-image-bucket and saves as "capture_from_s3.jpg"
+def retrieve_image():
+    try:
+        s3.Bucket("magic-wand-image-bucket").download_file('capture.jpg', 'capture_from_s3.jpg')
+        print ("Retrieved image from s3 magic-wand-image-bucket")
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+
 
 
 # retrieve sqs function adopted from https://docs.aws.amazon.com/code-samples/latest/catalog/python-sqs-receive_message.py.html
@@ -88,8 +91,10 @@ def delete_sqs_message(sqs_queue_url, msg_receipt_handle):
 def main():
     num_messages = 1
     # Retrieve a SQS message and send to label_data table or command_data table depending on message_type
-    # Delete the message from the SQS queue afterwards. Do this once every 6 seconds
+    # Delete the message from the SQS queue afterwards. Retrieve latest image from s3.
+    # Do this once every 6 seconds.
     while (True):
+        retrieve_image()
         msgs = retrieve_sqs_messages(sqs_queue_url, num_messages)
         if msgs is not None:
             for msg in msgs:
