@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'wand_gui.ui'
+#
+# Created by: PyQt5 UI code generator 5.11.3
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(921, 655)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.lastimage_button = QtWidgets.QPushButton(self.centralwidget)
+        self.lastimage_button.setGeometry(QtCore.QRect(30, 80, 151, 61))
+        self.lastimage_button.setObjectName("lastimage_button")
+        self.stat_line2_label = QtWidgets.QLabel(self.centralwidget)
+        self.stat_line2_label.setGeometry(QtCore.QRect(60, 480, 631, 41))
+        self.stat_line2_label.setText("")
+        self.stat_line2_label.setObjectName("stat_line2_label")
+        self.stat_line3_label = QtWidgets.QLabel(self.centralwidget)
+        self.stat_line3_label.setGeometry(QtCore.QRect(60, 530, 621, 41))
+        self.stat_line3_label.setText("")
+        self.stat_line3_label.setObjectName("stat_line3_label")
+        self.stat_line1_label = QtWidgets.QLabel(self.centralwidget)
+        self.stat_line1_label.setGeometry(QtCore.QRect(60, 430, 631, 41))
+        self.stat_line1_label.setText("")
+        self.stat_line1_label.setObjectName("stat_line1_label")
+        self.imagedisplay_label = QtWidgets.QLabel(self.centralwidget)
+        self.imagedisplay_label.setGeometry(QtCore.QRect(280, 50, 551, 281))
+        self.imagedisplay_label.setObjectName("imagedisplay_label")
+        self.image_data_label = QtWidgets.QLabel(self.centralwidget)
+        self.image_data_label.setGeometry(QtCore.QRect(280, 350, 531, 41))
+        self.image_data_label.setObjectName("image_data_label")
+        self.stattistics_button = QtWidgets.QPushButton(self.centralwidget)
+        self.stattistics_button.setGeometry(QtCore.QRect(30, 170, 151, 61))
+        self.stattistics_button.setObjectName("stattistics_button")
+        self.close_button = QtWidgets.QPushButton(self.centralwidget)
+        self.close_button.setGeometry(QtCore.QRect(30, 250, 151, 61))
+        self.close_button.setObjectName("close_button")
+        self.label_3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_3.setGeometry(QtCore.QRect(60, 390, 111, 31))
+        self.label_3.setObjectName("label_3")
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.lastimage_button.setText(_translate("MainWindow", "Last Picture Taken"))
+        self.imagedisplay_label.setText(_translate("MainWindow", "Last Image taken by wand."))
+        self.image_data_label.setText(_translate("MainWindow", "Image information"))
+        self.stattistics_button.setText(_translate("MainWindow", "Update Statistics"))
+        self.close_button.setText(_translate("MainWindow", "Close Program"))
+        self.label_3.setText(_translate("MainWindow", "Statistics"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())

@@ -18,10 +18,10 @@ mycursor = mydb.cursor()
 
 
 #start with clean table called "command_data" and "label_data"
-mycursor.execute("DROP TABLE command_data")
-mycursor.execute("CREATE TABLE command_data ( message_type VARCHAR(50), command VARCHAR(100), is_valid VARCHAR(20), time VARCHAR(100))")
-mycursor.execute("DROP TABLE label_data")
-mycursor.execute("CREATE TABLE label_data ( message_type VARCHAR(50),  image_label VARCHAR(100), result VARCHAR(20), time VARCHAR(100))")
+#mycursor.execute("DROP TABLE command_data")
+#mycursor.execute("CREATE TABLE command_data ( message_type VARCHAR(50), command VARCHAR(100), is_valid VARCHAR(20), time VARCHAR(100))")
+#mycursor.execute("DROP TABLE label_data")
+#mycursor.execute("CREATE TABLE label_data ( message_type VARCHAR(50),  image_label VARCHAR(100), result VARCHAR(20), time VARCHAR(100))")
 
 
 BUCKET_NAME = 'my-bucket' # replace with your bucket name
