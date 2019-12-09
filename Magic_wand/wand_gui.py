@@ -7,6 +7,14 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QPixmap
+import mysql.connector
+
+#create a databas connection
+mydb = mysql.connector.connect(host="localhost",user="admin",passwd="mfeid123",
+                               database='magicwanddb')
+mycursor = mydb.cursor()
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -32,6 +40,7 @@ class Ui_MainWindow(object):
         self.imagedisplay_label = QtWidgets.QLabel(self.centralwidget)
         self.imagedisplay_label.setGeometry(QtCore.QRect(280, 50, 551, 281))
         self.imagedisplay_label.setObjectName("imagedisplay_label")
+        self.imagedisplay_label.setScaledContents(True)
         self.image_data_label = QtWidgets.QLabel(self.centralwidget)
         self.image_data_label.setGeometry(QtCore.QRect(280, 350, 531, 41))
         self.image_data_label.setObjectName("image_data_label")
@@ -52,6 +61,9 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        #read sensor data on button press
+        self.lastimage_button.clicked.connect(self.get_last_image)
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -61,6 +73,19 @@ class Ui_MainWindow(object):
         self.stattistics_button.setText(_translate("MainWindow", "Update Statistics"))
         self.close_button.setText(_translate("MainWindow", "Close Program"))
         self.label_3.setText(_translate("MainWindow", "Statistics"))
+
+    def get_last_image(self):
+        #log: retrieving last image taken
+        self.imagedisplay_label.setPixmap(QPixmap('capture_from_s3.jpg'))
+        try:
+            mycursor.execute("SELECT image_label, time FROM label_data ")
+            myresult= mycursor.fetchone()
+            awslabel=myresult[0]
+            image_capture_time=myresult[1]
+            self.image_data_label.setText("Image Label: "+awslabel+"               Image captured on "+image_capture_time)
+        except:
+            #log: ERROR: could not retrieve last image or image information from DB
+            return
 
 
 if __name__ == "__main__":
