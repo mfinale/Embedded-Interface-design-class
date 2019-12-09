@@ -9,6 +9,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPixmap
 import mysql.connector
+import datetime
+import time
 
 #create a databas connection
 mydb = mysql.connector.connect(host="localhost",user="admin",passwd="mfeid123",
@@ -61,8 +63,14 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-        #read sensor data on button press
+        #retrieve last image taken on  button press
         self.lastimage_button.clicked.connect(self.get_last_image)
+
+        #close gui on button press
+        self.close_button.clicked.connect(self.close_program)
+
+        #update statistics on button press
+        self.stattistics_button.clicked.connect(self.update_statistics)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -87,7 +95,28 @@ class Ui_MainWindow(object):
             #log: ERROR: could not retrieve last image or image information from DB
             return
 
+    def close_program(self):
+        sys.exit(app.exec_())
 
+    # get % of correct commands and % of correct labels
+    def update_statistics(self):
+        mycursor.execute("SELECT COUNT(*) FROM command_data ") # get total number of commands from command table
+        number_of_commands = mycursor.fetchall()
+        number_of_commands= number_of_commands[0][0]
+
+        mycursor.execute("SELECT is_valid FROM command_data ") # get number of valid commands from command table
+        myresult = mycursor.fetchall()
+        number_of_valid_commands = 0
+        for x in myresult:
+            if '1' in x: #valid commands are recorded with '1' in the "is_valid" column of the table
+                number_of_valid_commands = number_of_valid_commands +1
+
+        command_success_rate= ((number_of_valid_commands)/(number_of_commands) ) * 100
+
+
+
+        self.stat_line1_label.setText("Percent of recorded commands marked as valid: "+str(command_success_rate)+"%" + "         Total commands recorded: " + str(number_of_commands))
+        self.stat_line3_label.setText("Statistics updated at "+str(datetime.datetime.now()))
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
