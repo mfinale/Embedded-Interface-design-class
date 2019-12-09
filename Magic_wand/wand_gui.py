@@ -85,20 +85,23 @@ class Ui_MainWindow(object):
     def get_last_image(self):
         #log: retrieving last image taken
         self.imagedisplay_label.setPixmap(QPixmap('capture_from_s3.jpg'))
-        try:
-            mycursor.execute("SELECT image_label, time FROM label_data ")
-            myresult= mycursor.fetchone()
-            awslabel=myresult[0]
-            image_capture_time=myresult[1]
-            self.image_data_label.setText("Image Label: "+awslabel+"               Image captured on "+image_capture_time)
-        except:
-            #log: ERROR: could not retrieve last image or image information from DB
-            return
+        mycursor.execute("SELECT COUNT(*) FROM label_data ") # get total number of labels from label table
+        number_of_labels = mycursor.fetchall()
+        number_of_labels= number_of_labels[0][0]
+
+        mycursor.execute("SELECT image_label, time FROM label_data ")
+        myresult= mycursor.fetchall()
+        latest_label=myresult[number_of_labels-1]
+        awslabel=latest_label[0]
+        image_capture_time=latest_label[1]
+
+        self.image_data_label.setText("Image Label: "+awslabel+"               Image captured on "+image_capture_time)
+
 
     def close_program(self):
         sys.exit(app.exec_())
 
-    # get % of correct commands and % of correct labels
+    # get % of correct recorded commands and % of correct labels from aws
     def update_statistics(self):
         mycursor.execute("SELECT COUNT(*) FROM command_data ") # get total number of commands from command table
         number_of_commands = mycursor.fetchall()
@@ -111,12 +114,28 @@ class Ui_MainWindow(object):
             if '1' in x: #valid commands are recorded with '1' in the "is_valid" column of the table
                 number_of_valid_commands = number_of_valid_commands +1
 
-        command_success_rate= ((number_of_valid_commands)/(number_of_commands) ) * 100
+        mycursor.execute("SELECT COUNT(*) FROM label_data ") # get total number of labels from label table
+        number_of_labels = mycursor.fetchall()
+        number_of_labels= number_of_labels[0][0]
 
+
+        mycursor.execute("SELECT result FROM label_data ") # get number of correct labels from label table
+        myresult = mycursor.fetchall()
+        number_of_correct_labels = 0
+        for x in myresult:
+            if 'correct' in x:
+                number_of_correct_labels = number_of_correct_labels+1
+
+
+        command_success_rate= ((number_of_valid_commands)/(number_of_commands) ) * 100
+        label_success_rate =  ((number_of_correct_labels)/(number_of_labels) ) * 100
 
 
         self.stat_line1_label.setText("Percent of recorded commands marked as valid: "+str(command_success_rate)+"%" + "         Total commands recorded: " + str(number_of_commands))
+        self.stat_line2_label.setText("Percent of correct labels from AWS: "+str(label_success_rate)+"%" + "         Total labels recorded: " + str(number_of_labels))
         self.stat_line3_label.setText("Statistics updated at "+str(datetime.datetime.now()))
+
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
