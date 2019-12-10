@@ -6,7 +6,7 @@ The "magicwanddb" database is populated by a separate python script (server.py) 
 runs continuosly to retrieve data from AWS.
 The GUI posesses the following functions
 - a button to display the last image taken by the magic wand and corresponding label
-given by AWS 
+given by AWS
 - a button to calculate and display the percentage of successful commands recorded by the Magic wand
 as well as the percentage of successful labels assigned by AWS.
 - a button to close the program.
@@ -166,8 +166,8 @@ class Ui_MainWindow(object):
 
         command_success_rate= ((number_of_valid_commands)/(number_of_commands) ) * 100
         label_success_rate =  ((number_of_correct_labels)/(number_of_labels) ) * 100
-
-
+        command_success_rate = round(command_success_rate,4)
+        label_success_rate = round(label_success_rate,4)
         self.stat_line1_label.setText("Percent of recorded commands marked as valid: "+str(command_success_rate)+"%" + "         Total commands recorded: " + str(number_of_commands))
         self.stat_line2_label.setText("Percent of correct labels from AWS: "+str(label_success_rate)+"%" + "         Total labels recorded: " + str(number_of_labels))
         self.stat_line3_label.setText("Statistics updated at "+str(datetime.datetime.now()))
