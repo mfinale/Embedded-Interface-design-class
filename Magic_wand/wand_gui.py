@@ -12,7 +12,7 @@ import mysql.connector
 import datetime
 import time
 
-#create a databas connection
+#create a database connection
 mydb = mysql.connector.connect(host="localhost",user="admin",passwd="mfeid123",
                                database='magicwanddb')
 mycursor = mydb.cursor()
@@ -74,7 +74,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Magic Wand GUI"))
         self.lastimage_button.setText(_translate("MainWindow", "Last Picture Taken"))
         self.imagedisplay_label.setText(_translate("MainWindow", "Last Image taken by wand."))
         self.image_data_label.setText(_translate("MainWindow", "Image information"))
@@ -84,47 +84,61 @@ class Ui_MainWindow(object):
 
     def get_last_image(self):
         #log: retrieving last image taken
-        self.imagedisplay_label.setPixmap(QPixmap('capture_from_s3.jpg'))
-        mycursor.execute("SELECT COUNT(*) FROM label_data ") # get total number of labels from label table
-        number_of_labels = mycursor.fetchall()
-        number_of_labels= number_of_labels[0][0]
+        self.statusbar.showMessage("Retrieving last image taken",2000)
+        try:
+            self.imagedisplay_label.setPixmap(QPixmap('capture_from_s3.jpg'))
+            mycursor.execute("SELECT COUNT(*) FROM label_data ") # get total number of labels from label table
+            number_of_labels = mycursor.fetchall()
+            number_of_labels= number_of_labels[0][0]
 
-        mycursor.execute("SELECT image_label, time FROM label_data ")
-        myresult= mycursor.fetchall()
-        latest_label=myresult[number_of_labels-1]
-        awslabel=latest_label[0]
-        image_capture_time=latest_label[1]
+            mycursor.execute("SELECT image_label, time FROM label_data ")
+            myresult= mycursor.fetchall()
+            latest_label=myresult[number_of_labels-1]
+            awslabel=latest_label[0]
+            image_capture_time=latest_label[1]
 
-        self.image_data_label.setText("Image Label: "+awslabel+"               Image captured on "+image_capture_time)
+            self.image_data_label.setText("Image Label: "+awslabel+"               Image captured on "+image_capture_time)
+        except:
+            self.statusbar.showMessage("ERROR: Could not retrieving last image taken")
 
 
     def close_program(self):
+        self.statusbar.showMessage("Closing Program",2000)
         sys.exit(app.exec_())
 
     # get % of correct recorded commands and % of correct labels from aws
     def update_statistics(self):
-        mycursor.execute("SELECT COUNT(*) FROM command_data ") # get total number of commands from command table
-        number_of_commands = mycursor.fetchall()
-        number_of_commands= number_of_commands[0][0]
+        self.statusbar.showMessage("Retrieving data from command_data table",2000)
+        try:
+            mycursor.execute("SELECT COUNT(*) FROM command_data ") # get total number of commands from command table
+            number_of_commands = mycursor.fetchall()
+            number_of_commands= number_of_commands[0][0]
 
-        mycursor.execute("SELECT is_valid FROM command_data ") # get number of valid commands from command table
-        myresult = mycursor.fetchall()
-        number_of_valid_commands = 0
-        for x in myresult:
-            if '1' in x: #valid commands are recorded with '1' in the "is_valid" column of the table
-                number_of_valid_commands = number_of_valid_commands +1
+            mycursor.execute("SELECT is_valid FROM command_data ") # get number of valid commands from command table
+            myresult = mycursor.fetchall()
+            number_of_valid_commands = 0
+            for x in myresult:
+                if '1' in x: #valid commands are recorded with '1' in the "is_valid" column of the table
+                    number_of_valid_commands = number_of_valid_commands +1
+        except:
+            self.statusbar.showMessage("ERROR: Could not retrieve data from command_data table")
 
-        mycursor.execute("SELECT COUNT(*) FROM label_data ") # get total number of labels from label table
-        number_of_labels = mycursor.fetchall()
-        number_of_labels= number_of_labels[0][0]
+        self.statusbar.showMessage("Retrieving data from label_data table",2000)
+        try:
+            mycursor.execute("SELECT COUNT(*) FROM label_data ") # get total number of labels from label table
+            number_of_labels = mycursor.fetchall()
+            number_of_labels= number_of_labels[0][0]
 
 
-        mycursor.execute("SELECT result FROM label_data ") # get number of correct labels from label table
-        myresult = mycursor.fetchall()
-        number_of_correct_labels = 0
-        for x in myresult:
-            if 'correct' in x:
-                number_of_correct_labels = number_of_correct_labels+1
+
+            mycursor.execute("SELECT result FROM label_data ") # get number of correct labels from label table
+            myresult = mycursor.fetchall()
+            number_of_correct_labels = 0
+            for x in myresult:
+                if 'correct' in x:
+                    number_of_correct_labels = number_of_correct_labels+1
+        except:
+            self.statusbar.showMessage("ERROR: Could not retrieve data from label_data table")
 
 
         command_success_rate= ((number_of_valid_commands)/(number_of_commands) ) * 100
