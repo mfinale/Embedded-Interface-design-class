@@ -4,7 +4,7 @@
 ## Notes and Installation Instructions
 
 
-### On Server Rasberry Pi
+### On the Server Rasberry Pi
 - clone repo from https://github.com/mfinale/Embedded-Interface-design-class.git
 - install mySQL driver for python3 by running the following command from the terminal `sudo pip3 install mysql-connector`
 - install mySQL `sudo apt install mariadb-server`
