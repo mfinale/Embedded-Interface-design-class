@@ -59,13 +59,13 @@ def on_connect(client, userdata, flags, rc):
         print("MQTT clientBad connection Returned code=",rc)
 
 
-#define credentials for MQTT connection to aws
+#define credentials for MQTT connection to aws - add these with your own credentials
 IoT_protocol_name = "x-amzn-mqtt-ca"
-aws_iot_endpoint = "a1i8vja12d7doa-ats.iot.us-east-1.amazonaws.com"
+aws_iot_endpoint = "enpointname.iot.us-east-1.amazonaws.com"
 url = "https://{}".format(aws_iot_endpoint)
 ca = "/home/pi/Desktop/aws_files/root-ca.pem"
-cert = "/home/pi/Desktop/aws_files/1d28cc129f-certificate.pem.crt"
-private = "/home/pi/Desktop/aws_files/1d28cc129f-private.pem.key"
+cert = "/home/pi/Desktop/aws_files/certificate.pem.crt"
+private = "/home/pi/Desktop/aws_files/private.pem.key"
 
 # setup ssl for connection
 # code borrowed from:
