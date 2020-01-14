@@ -42,7 +42,7 @@ __copyright__ = "Copyright (C) 2019 by Michael Finale"
 #AWS resources
 s3 = boto3.resource('s3')
 sqs=boto3.client('sqs')
-sqs_queue_url='https://sqs.us-east-1.amazonaws.com/374381767834/magicwand_queue.fifo'	
+sqs_queue_url='your sqs queue url'	
 
 
 #create a database connection
