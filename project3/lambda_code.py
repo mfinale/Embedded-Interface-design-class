@@ -31,10 +31,10 @@ def lambda_handler(event, context):
             )
         print ('Sent a message to an Amazon SNS topic.')
     elif (event['Label']=="sensor_read"):
-        sqs_queue_url = 'https://sqs.us-east-1.amazonaws.com/374381767834/Sensordata.fifo'
+        sqs_queue_url = 'your queue url'
         sqs_client = boto3.client('sqs')
         msg_body =  json.dumps(event)
-        msg_id = "sensorreadgroupid"
+        msg_id = "your sqs group id"
         msg = sqs_client.send_message(QueueUrl=sqs_queue_url, MessageBody=msg_body,  MessageGroupId= msg_id)
         print("Timestamp = " + str(event['Timestamp']))
         print("Temperature = " + str(event['Temperature']))
