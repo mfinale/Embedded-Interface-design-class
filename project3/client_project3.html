@@ -177,7 +177,7 @@
 		  
 		  // Initialize the Amazon Cognito credentials provider
 			AWS.config.region = 'us-east-1'; 
-			AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: 'us-east-1:dce73a31-04e9-4eee-995a-b52acfcfa35d'});
+			AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: 'put your id here'});
 			
 		  //proceed once web page has loaded
 		  $(document).ready(function () {
@@ -190,7 +190,7 @@
 			
 			// Create an SQS service object
 			var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
-			var queueURL = "https://sqs.us-east-1.amazonaws.com/374381767834/Sensordata.fifo";
+			var queueURL = "your queue URL";
 			
 			//parameters for accessing SQS queue
 			var params = {
