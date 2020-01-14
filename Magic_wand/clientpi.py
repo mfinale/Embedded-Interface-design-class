@@ -67,7 +67,7 @@ s3 = boto3.resource('s3')
 transcribe = boto3.client('transcribe')
 rekognition= boto3.client('rekognition')
 sqs=boto3.client('sqs')
-sqs_queue_url='https://sqs.us-east-1.amazonaws.com/374381767834/magicwand_queue.fifo'	
+sqs_queue_url='your sqs queue url'	
 
 
 # plays specified audio file to raspberry pi speaker
