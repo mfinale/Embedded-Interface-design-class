@@ -1,6 +1,11 @@
 # EID Project6: Magic Wand Super Project  
 
 ## Author: Michael Finale
+
+## Block Diagram
+
+![image](https://user-images.githubusercontent.com/10779404/124338568-aa9d6e00-db76-11eb-90bf-efee0180d291.png)
+
 ## Notes and Installation Instructions
 
 
